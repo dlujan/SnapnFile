@@ -13,7 +13,7 @@ export default function Loading({ navigation }) {
             .auth()
             .onAuthStateChanged((user) => {
                 if (user) {
-                    navigation.navigate('Account');
+                    navigation.navigate('MainTabNavigator');
                 } else {
                     navigation.navigate('Login');
                 }
