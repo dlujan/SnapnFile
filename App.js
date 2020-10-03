@@ -8,6 +8,7 @@ import Login from './screens/Login';
 import Signup from './screens/Signup';
 import Templates from './screens/Templates';
 import Albums from './screens/Albums';
+import SnapCamera from './screens/SnapCamera';
 import Account from './screens/Account';
 
 import * as firebase from 'firebase';
@@ -18,9 +19,10 @@ const { Navigator, Screen } = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const MainTabNavigator = () => {
-  return <Tab.Navigator>
+  return <Tab.Navigator initialRouteName="Account">
     <Tab.Screen name="Templates" component={Templates}/>
     <Tab.Screen name="Albums" component={Albums}/>
+    <Tab.Screen name="SnapCamera" component={SnapCamera}/>
     <Tab.Screen name="Account" component={Account}/>
   </Tab.Navigator>
 }
