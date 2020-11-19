@@ -4,6 +4,7 @@ import { StyleSheet, Text, View, Button } from 'react-native';
 import firebase from 'firebase';
 import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri, ResponseType, useAuthRequest } from 'expo-auth-session';
+import { dbClientID } from '../config';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -19,7 +20,7 @@ export default function Account() {
   const [request, response, promptAsync] = useAuthRequest(
     {
       responseType: ResponseType.Token,
-      clientId: 't6s0wle8a5tt9s0',
+      clientId: dbClientID,
       // There are no scopes so just pass an empty array
       scopes: [],
       // Dropbox doesn't support PKCE
