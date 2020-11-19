@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "SnapnFile",
+    "scheme": "snapnfileredirect",
     "slug": "SnapnFile",
     "version": "1.0.0",
     "orientation": "portrait",
