@@ -15,9 +15,7 @@ export default function Templates() {
     // Using a static test template for now, but will eventually be a dynamic one (aka object) that user creates
     let testTemplate = {
       title: 'test-template',
-      foundation: 'foundation',
-      roof: 'roof',
-      plumbing: 'plumbing'
+      folders: ['foundation', 'roof', 'plumbing']
     }
 
     ref.child("album_templates").push(testTemplate);
