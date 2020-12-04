@@ -3,6 +3,7 @@ import React from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
 import * as Google from 'expo-google-app-auth';
 import firebase from 'firebase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const onSignIn = (googleUser) => {
   console.log('Google Auth Response', googleUser);
@@ -40,6 +41,7 @@ const onSignIn = (googleUser) => {
             last_logged_in: Date.now()
           })
         }
+        setUID(result.user.uid);
       })
       .catch(function(error) {
         // Handle Errors here.
@@ -90,6 +92,14 @@ const isUserEqual = (googleUser, firebaseUser) => {
     }
   }
   return false;
+}
+
+const setUID = async (id) => {
+  try {
+    await AsyncStorage.setItem('@user_Id', id)
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 export default function Login() {

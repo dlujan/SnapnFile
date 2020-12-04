@@ -54,8 +54,9 @@ export default function Account() {
   }
 
   const signOutUser = async () => {
+    const keys = ['@storage_Key', '@user_Id']
     try {
-      await AsyncStorage.removeItem('@storage_Key')
+      await AsyncStorage.multiRemove(keys);
     } catch(e) {
       console.error(e);
     }
