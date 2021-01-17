@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
+import { StyleSheet, Text, View, Modal, Button, TextInput, Alert } from 'react-native';
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { render } from 'react-dom';
@@ -9,32 +9,66 @@ export default class Templates extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      allTemplates: [],
+      viewModal: false,
       newTemplateName: '',
       layerOne: [],
-      layerTwo: [],
-      newFolder: ''
+      layerTwo: []
     }
   }
 
-  //*** Need to create separate modal to hold the new template creation
+  async componentDidMount() {
+    const uid = await this.getUID();
+    let ref = firebase.database().ref('users/' + uid).child("album_templates");
+    ref.once('value').then(snapshot => {
+      let templates = snapshot.val();
+      if (templates !== null) {
+        this.setState({ allTemplates: templates });
+      }
+    })
+  }
+  // ehh..
+  async componentDidUpdate() {
+    const uid = await this.getUID();
+    let ref = firebase.database().ref('users/' + uid).child("album_templates");
+    ref.once('value').then(snapshot => {
+      let templates = snapshot.val();
+      if (templates !== null) {
+        this.setState({ allTemplates: templates });
+      }
+    })
+  }
+
+  // TODO: Loading screen while templates are being fetched from Firebase
 
   // #1 Name the template
   // #2 Let user create new inputs - will need a method that returns an input field
   
   // This function uses current state to create the template
   createTemplate = async () => {
-    // Create a template format and save to database
-    const uid = await this.getUID();
-    let ref = firebase.database().ref('/users/' + uid);
+    if (this.state.newTemplateName !== '' && this.state.layerOne.length !== 0) {
+      // Create a template format and save to database
+      const uid = await this.getUID();
+      let ref = firebase.database().ref('/users/' + uid);
 
-    // **** I need to figure out how to be able to create deeper folders with Firebase, it won't take an array :/
-    // Using a static test template for now, but will eventually be a dynamic one (aka object) that user creates
-    let newAlbumTemplate = {
-      title: this.state.newTemplateName,
-      folders: this.state.layerOne
+      // **** I need to figure out how to be able to create deeper folders with Firebase, it won't take an array :/
+      // Using a static test template for now, but will eventually be a dynamic one (aka object) that user creates
+      let newAlbumTemplate = {
+        title: this.state.newTemplateName,
+        folders: this.state.layerOne
+      }
+
+      ref.child("album_templates").push(newAlbumTemplate);
+
+      this.closeModal();
+
+    } else if (this.state.newTemplateName === '' && this.state.layerOne.length === 0) {
+      alert('Please fill in template name and create at least one folder.');
+    } else if (this.state.newTemplateName === '') {
+      alert('Please fill in template name.');
+    } else {
+      alert('Please create at least one folder.');
     }
-
-    ref.child("album_templates").push(newAlbumTemplate);
   }
 
   getDBToken = async () => {
@@ -63,47 +97,86 @@ export default class Templates extends React.Component {
     this.setState({ newTemplateName: name });
   }
 
-  handleFolderName = (name) => {
-    this.setState({ newFolder: name })
+  handleFolderName = (event, index) => {
+    const text = event.nativeEvent.text;
+
+    let layerOneNew = this.state.layerOne;
+    layerOneNew[index] = text;
+
+    this.setState({ layerOne: layerOneNew });
   }
 
   addFolder = () => {
-    if (this.state.newFolder !== '') {
-      this.setState({ 
-        layerOne: [...this.state.layerOne, this.state.newFolder],
-        newFolder: ''
-      })
-    }
+    const defaultName = this.state.layerOne.length; // *** NOTE *** I MIGHT remove this, idk. Do I want the user creating folders with empty names potentially?
+    this.setState({ 
+      layerOne: [...this.state.layerOne, `Folder ${defaultName}`]
+    })
   }
 
-  // renderFolderComponent = () => {
-  //   return (
-  //     <TextInput 
-  //       placeholder="Folder Name"
-  //       onChangeText={this.handleFolderName}
-  //       value={this.state.newFolder}
-  //     />
-  //   );
-  // }
+  closeModal = () => {
+    this.setState({
+      newTemplateName: '',
+      layerOne: [],
+      layerTwo: [],
+      viewModal: false
+    })
+  }
+
+  renderSavedTemplates = () => {
+    const templates = this.state.allTemplates;
+    return (
+      <View style={styles.loadedTemplatesList}>
+        {Object.keys(templates).map((key, index) => (
+          <View key={index} style={styles.loadedTemplatesSingle}>
+            <Text style={styles.loadedTemplateTitle}>{templates[key].title}</Text>
+          </View>
+        ))}
+      </View>
+    )
+  }
+
   render() {
     return (
       <View style={styles.container}>
-        <Text>{this.state.newTemplateName}</Text>
-        <Text>{this.state.newFolder}</Text>
-        <View>
-          <TextInput 
-            placeholder="Template Name"
-            onChangeText={this.handleTemplateName}
-            value={this.state.newTemplateName}
-          />
-          <TextInput 
-            placeholder="Folder Name"
-            onChangeText={this.handleFolderName}
-            value={this.state.newFolder}
-          />
-          <Button title="Add Folder" onPress={() => this.addFolder()}/>
-        </View>
-        <Button title="Create Template" onPress={() => this.createTemplate()}/>
+        <Text style={styles.pageHeading}>Templates</Text>
+        { this.renderSavedTemplates() }
+        { this.state.viewModal && (
+          <View style={styles.modalContainer}>
+            <Modal animationType="slide">
+              <View style={styles.modalContent}>
+                <Text style={styles.modalHeading}>Create New Template</Text>
+                <TextInput 
+                  placeholder="Template Name"
+                  onChangeText={this.handleTemplateName}
+                  value={this.state.newTemplateName}
+                />
+                {this.state.layerOne.length !== 0 && this.state.layerOne.map((folder, index) => (
+                  <TextInput 
+                    key={index}
+                    placeholder={`Folder ${index+1}`}
+                    value={this.state.layerOne[index]}
+                    onChange={(event) => this.handleFolderName(event, index)}
+                  />
+                ))}
+                <Button title="Add Folder" onPress={() => this.addFolder()}/>
+                <Button title="Save Template" onPress={() => this.createTemplate()}/>
+                <Button
+                  title="Close"
+                  onPress={() => Alert.alert(
+                    'You sure?',
+                    'You will lose your current progress on this new template.',
+                    [
+                      {text: 'Cancel', onPress: () => console.log('cancelled')},
+                      {text: 'OK', onPress: this.closeModal}
+                    ]
+                  )}
+
+                />
+              </View>
+            </Modal>
+          </View>
+        )}
+        <Button title="Create New Template" onPress={() => this.setState({ viewModal: true })}/>
         <StatusBar style="auto" />
       </View>
     );
@@ -112,9 +185,45 @@ export default class Templates extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    marginTop: 60,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
+  pageHeading: {
+    fontSize: 30,
+    fontWeight: 'bold'
+  },
+
+  // Loaded Templates
+  loadedTemplatesList: {
+    backgroundColor: '#f7f7f7',
+    width: '90%'
+  },
+  loadedTemplatesSingle: {
+    margin: 5,
+    padding: 5
+  },
+  loadedTemplateTitle: {
+    color: 'orange',
+    fontSize: 20
+  },
+
+  // New Template Modal
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22
+  },
+  modalContent: {
+    marginTop: 60,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalHeading: {
+    fontSize: 28,
+    fontWeight: '600'
+  }
 });
