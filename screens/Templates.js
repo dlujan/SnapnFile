@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Modal, Button, TextInput, Alert } from 'react-native';
+import { StyleSheet, Text, View, Modal, Button, TextInput, Alert} from 'react-native';
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { render } from 'react-dom';
@@ -109,7 +109,7 @@ export default class Templates extends React.Component {
   addFolder = () => {
     const defaultName = this.state.layerOne.length; // *** NOTE *** I MIGHT remove this, idk. Do I want the user creating folders with empty names potentially?
     this.setState({ 
-      layerOne: [...this.state.layerOne, `Folder ${defaultName}`]
+      layerOne: [...this.state.layerOne, `Folder ${defaultName + 1}`]
     })
   }
 
@@ -144,21 +144,25 @@ export default class Templates extends React.Component {
           <View style={styles.modalContainer}>
             <Modal animationType="slide">
               <View style={styles.modalContent}>
-                <Text style={styles.modalHeading}>Create New Template</Text>
-                <TextInput 
+                <Text style={styles.modalHeading}>New Template</Text>
+                <TextInput
+                  style={styles.modalNewTemplateName}
                   placeholder="Template Name"
                   onChangeText={this.handleTemplateName}
                   value={this.state.newTemplateName}
                 />
-                {this.state.layerOne.length !== 0 && this.state.layerOne.map((folder, index) => (
-                  <TextInput 
-                    key={index}
-                    placeholder={`Folder ${index+1}`}
-                    value={this.state.layerOne[index]}
-                    onChange={(event) => this.handleFolderName(event, index)}
-                  />
-                ))}
-                <Button title="Add Folder" onPress={() => this.addFolder()}/>
+                <View style={styles.newFoldersList}>
+                  {this.state.layerOne.length !== 0 && this.state.layerOne.map((folder, index) => (
+                    <TextInput
+                      style={styles.modalNewFolder}
+                      key={index}
+                      placeholder={`Folder ${index+1}`}
+                      value={this.state.layerOne[index]}
+                      onChange={(event) => this.handleFolderName(event, index)}
+                    />
+                  ))}
+                  <View style={styles.addFolder}><Button title="Add Folder" onPress={() => this.addFolder()}/></View>
+                </View>
                 <Button title="Save Template" onPress={() => this.createTemplate()}/>
                 <Button
                   title="Close"
@@ -166,7 +170,7 @@ export default class Templates extends React.Component {
                     'You sure?',
                     'You will lose your current progress on this new template.',
                     [
-                      {text: 'Cancel', onPress: () => console.log('cancelled')},
+                      {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
                       {text: 'OK', onPress: this.closeModal}
                     ]
                   )}
@@ -225,5 +229,17 @@ const styles = StyleSheet.create({
   modalHeading: {
     fontSize: 28,
     fontWeight: '600'
+  },
+  newFoldersList: {
+    backgroundColor: '#f7f7f7',
+    width: '90%'
+  },
+  modalNewTemplateName: {
+    padding: 10,
+    fontSize: 26
+  },
+  modalNewFolder: {
+    padding: 10,
+    fontSize: 20
   }
 });
