@@ -126,9 +126,14 @@ export default class Templates extends React.Component {
     const templates = this.state.allTemplates;
     return (
       <View style={styles.loadedTemplatesList}>
-        {Object.keys(templates).map((key, index) => (
+        {Object.keys(templates).map((template, index) => (
           <View key={index} style={styles.loadedTemplatesSingle}>
-            <Text style={styles.loadedTemplateTitle}>{templates[key].title}</Text>
+            <Text style={styles.loadedTemplateTitle}>{templates[template].title}</Text>
+            <View style={styles.loadedTemplateFolders}>
+            {templates[template].folders.map((name, index) => (
+              <Text key={index}>{name}</Text>
+            ))}
+            </View>
           </View>
         ))}
       </View>
@@ -211,6 +216,9 @@ const styles = StyleSheet.create({
   loadedTemplateTitle: {
     color: 'orange',
     fontSize: 20
+  },
+  loadedTemplateFolders: {
+    margin: 5
   },
 
   // New Template Modal
