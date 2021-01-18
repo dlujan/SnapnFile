@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Modal, Button, TextInput, Alert} from 'react-native';
+import { StyleSheet, TouchableOpacity, Text, View, Modal, Button, TextInput, Alert} from 'react-native';
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { render } from 'react-dom';
@@ -17,18 +17,16 @@ export default class Templates extends React.Component {
     }
   }
 
-  async componentDidMount() {
-    const uid = await this.getUID();
-    let ref = firebase.database().ref('users/' + uid).child("album_templates");
-    ref.once('value').then(snapshot => {
-      let templates = snapshot.val();
-      if (templates !== null) {
-        this.setState({ allTemplates: templates });
-      }
-    })
+  // TODO: Cache pulled templates
+  componentDidMount() {
+    this.loadTemplatesFromFirebase();
   }
   // ehh..
-  async componentDidUpdate() {
+  componentDidUpdate() {
+    this.loadTemplatesFromFirebase();
+  }
+
+  loadTemplatesFromFirebase = async () => {
     const uid = await this.getUID();
     let ref = firebase.database().ref('users/' + uid).child("album_templates");
     ref.once('value').then(snapshot => {
@@ -39,38 +37,7 @@ export default class Templates extends React.Component {
     })
   }
 
-  // TODO: Loading screen while templates are being fetched from Firebase
-
-  // #1 Name the template
-  // #2 Let user create new inputs - will need a method that returns an input field
-  
-  // This function uses current state to create the template
-  createTemplate = async () => {
-    if (this.state.newTemplateName !== '' && this.state.layerOne.length !== 0) {
-      // Create a template format and save to database
-      const uid = await this.getUID();
-      let ref = firebase.database().ref('/users/' + uid);
-
-      // **** I need to figure out how to be able to create deeper folders with Firebase, it won't take an array :/
-      // Using a static test template for now, but will eventually be a dynamic one (aka object) that user creates
-      let newAlbumTemplate = {
-        title: this.state.newTemplateName,
-        folders: this.state.layerOne
-      }
-
-      ref.child("album_templates").push(newAlbumTemplate);
-
-      this.closeModal();
-
-    } else if (this.state.newTemplateName === '' && this.state.layerOne.length === 0) {
-      alert('Please fill in template name and create at least one folder.');
-    } else if (this.state.newTemplateName === '') {
-      alert('Please fill in template name.');
-    } else {
-      alert('Please create at least one folder.');
-    }
-  }
-
+  // TODO: Put these into separate utility functions file
   getDBToken = async () => {
     try {
       const value = await AsyncStorage.getItem('@storage_Key')
@@ -91,6 +58,50 @@ export default class Templates extends React.Component {
     } catch(e) {
       console.error(e);
     }
+  }
+
+  // TODO: Loading screen while templates are being fetched from Firebase
+  
+  // This function uses current state to create the template
+  createTemplate = async () => {
+    if (this.state.newTemplateName !== '' && this.state.layerOne.length !== 0) {
+      // Create a template format and save to database
+      const uid = await this.getUID();
+      let ref = firebase.database().ref('/users/' + uid);
+
+      // TODO: Decide on how many layers deep I wanna let the user create and figure out how to handle it
+      let newAlbumTemplate = {
+        title: this.state.newTemplateName,
+        folders: this.state.layerOne
+      }
+
+      ref.child("album_templates").push(newAlbumTemplate);
+
+      this.closeModal();
+
+    } else if (this.state.newTemplateName === '' && this.state.layerOne.length === 0) {
+      alert('Please fill in template name and create at least one folder.');
+    } else if (this.state.newTemplateName === '') {
+      alert('Please fill in template name.');
+    } else {
+      alert('Please create at least one folder.');
+    }
+  }
+
+  deleteTemplate = async (event, index) => {
+    const uid = await this.getUID();
+    let ref = firebase.database().ref('/users/' + uid).child("album_templates");
+
+    ref.once('value').then(snapshot => {
+      let templates = snapshot.val();
+      if (templates !== null) {
+        const templateToDelete = Object.keys(templates)[index];
+        if (templateToDelete) {
+          ref.child(templateToDelete).remove();
+          console.log(`Template ${templateToDelete} deleted.`);
+        }
+      }
+    })
   }
 
   handleTemplateName = (name) => {
@@ -128,7 +139,22 @@ export default class Templates extends React.Component {
       <View style={styles.loadedTemplatesList}>
         {Object.keys(templates).map((template, index) => (
           <View key={index} style={styles.loadedTemplatesSingle}>
-            <Text style={styles.loadedTemplateTitle}>{templates[template].title}</Text>
+            <View style={styles.loadedTemplateRow1}>
+              <Text style={styles.loadedTemplateTitle}>{templates[template].title}</Text>
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={(event) => Alert.alert(
+                  'You sure?',
+                  'This template will be deleted permanently.',
+                  [
+                    {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                    {text: 'OK', onPress: () => this.deleteTemplate(event, index)}
+                  ]
+                )}
+              >
+                <Text>Delete</Text>
+              </TouchableOpacity>
+            </View>
             <View style={styles.loadedTemplateFolders}>
             {templates[template].folders.map((name, index) => (
               <Text key={index}>{name}</Text>
@@ -213,9 +239,18 @@ const styles = StyleSheet.create({
     margin: 5,
     padding: 5
   },
+  loadedTemplateRow1: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
   loadedTemplateTitle: {
     color: 'orange',
     fontSize: 20
+  },
+  deleteButton: {
+    padding: 5,
+    backgroundColor: 'red'
   },
   loadedTemplateFolders: {
     margin: 5
