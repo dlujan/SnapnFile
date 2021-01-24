@@ -8,8 +8,9 @@ export default class TemplateSingle extends React.Component {
     super(props);
     this.state = {
       viewModal: false,
-      templateName: '',
+      templateNewName: '',
       layerOne: [],
+      layerOneOriginal: [],
       layerTwo: []
     }
   }
@@ -51,6 +52,36 @@ export default class TemplateSingle extends React.Component {
     }
   }
 
+  updateTemplate = async (index) => {
+    // Check that new template name doesnt equal empty string or all spaces
+    const templateNameChanged = this.state.templateNewName !== '' && this.state.templateNewName.trim() !== "";
+    const foldersChanged = this.state.layerOne !== this.state.layerOneOriginal;
+    if (templateNameChanged || foldersChanged) {
+      const uid = await this.getUID();
+      let ref = firebase.database().ref('/users/' + uid).child("album_templates");
+
+      let updatedTemplate = {
+        title: this.state.templateNewName,
+        folders: this.state.layerOne
+      }
+      console.log('update either name, title, or both.... or just use code below and handle the title')
+      // ref.once('value').then(snapshot => {
+      //   let templates = snapshot.val();
+      //   if (templates !== null) {
+      //     const templateToUpdate = Object.keys(templates)[index];
+      //     if (templateToUpdate) {
+      //       ref.child(templateToUpdate).set(updatedTemplate);
+      //       console.log(`Template ${templateToUpdate} updated.`);
+      //     }
+      //   }
+      // })
+
+
+    } else {
+      alert('No changes detected.')
+    }
+  }
+
   deleteTemplate = async (event, index) => {
     const uid = await this.getUID();
     let ref = firebase.database().ref('/users/' + uid).child("album_templates");
@@ -68,7 +99,7 @@ export default class TemplateSingle extends React.Component {
   }
 
   handleTemplateName = (name) => {
-    this.setState({ newTemplateName: name });
+    this.setState({ templateNewName: name });
   }
 
   handleFolderName = (event, index) => {
@@ -87,38 +118,44 @@ export default class TemplateSingle extends React.Component {
     })
   }
 
+  // TODO :: Delete folder
+
   openModal = () => {
     // When modal opens, populate the specific template component's state, using provided index
-    const { templates, template, index } = this.props;
-    const thisTemplate = templates[template].folders;
+    const { templates, template } = this.props;
+    const templateTitle = templates[template].title;
+    const currentTemplate = templates[template].folders;
     
-    const folderList = thisTemplate.map(folder => {
+    const folderListCurrent = currentTemplate.map(folder => {
       return folder;
     })
 
     this.setState({
-      layerOne: folderList,
+      layerOne: folderListCurrent,
+      layerOneOriginal: folderListCurrent,
       viewModal: true
     })
   }
 
   closeModal = () => {
     this.setState({
-      templateName: '',
+      viewModal: false,
+      templateNewName: '',
       layerOne: [],
-      layerTwo: [],
-      viewModal: false
+      layerOneOriginal: [],
+      layerTwo: []
     })
   }
 
   render() {
+    // I'm using current template to render title placeholder only
     const { templates, template, index } = this.props;
     const templateTitle = templates[template].title;
     return (
       <View>
         <TouchableOpacity style={styles.loadedTemplatesSingle} onPress={this.openModal}>
-          <View style={styles.loadedTemplateRow1}>
-            <Text style={styles.loadedTemplateTitle}>{templates[template].title}</Text>
+          <View style={styles.loadedTemplateRow}>
+            <Text style={styles.loadedTemplateTitle}>{templateTitle}</Text>
           </View>
           {/* <View style={styles.loadedTemplateFolders}>
             {templates[template].folders.map((name, index) => (
@@ -151,10 +188,10 @@ export default class TemplateSingle extends React.Component {
                     style={styles.modalNewTemplateName}
                     placeholder={templateTitle}
                     onChangeText={this.handleTemplateName}
-                    value={this.state.newTemplateName}
+                    value={this.state.templateNewName}
                 />
                 <View style={styles.newFoldersList}>
-                    {this.state.layerOne.length !== 0 && this.state.layerOne.map((folder, index) => (
+                    {this.state.layerOne.length !== 0 && this.state.layerOne.map((name, index) => (
                     <TextInput
                         style={styles.modalNewFolder}
                         key={index}
@@ -165,12 +202,12 @@ export default class TemplateSingle extends React.Component {
                     ))}
                     <View style={styles.addFolder}><Button title="Add Folder" onPress={() => this.addFolder()}/></View>
                 </View>
-                <Button title="Save Changes" onPress={() => this.createTemplate()}/>
+                <Button title="Save Changes" onPress={() => this.updateTemplate(index)}/>
                 <Button
                     title="Close"
                     onPress={() => Alert.alert(
                     'You sure?',
-                    'You will lose your current progress on this new template.',
+                    'You will lose any progress updating this template.',
                     [
                         {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
                         {text: 'OK', onPress: this.closeModal}
@@ -197,7 +234,7 @@ const styles = StyleSheet.create({
     margin: 5,
     padding: 5
   },
-  loadedTemplateRow1: {
+  loadedTemplateRow: {
     flexDirection: 'row',
     alignItems: 'center'
   },

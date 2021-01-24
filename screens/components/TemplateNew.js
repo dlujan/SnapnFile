@@ -26,7 +26,7 @@ export default class TemplateNew extends React.Component {
   
   // This function uses current state to create the template
   createTemplate = async () => {
-    if (this.state.newTemplateName !== '' && this.state.layerOne.length !== 0) {
+    if (this.state.newTemplateName !== '' && this.state.newTemplateName.trim() !== "" && this.state.layerOne.length !== 0) {
       // Create a template format and save to database
       const uid = await this.getUID();
       let ref = firebase.database().ref('/users/' + uid);
