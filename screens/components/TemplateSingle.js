@@ -41,6 +41,8 @@ export default class TemplateSingle extends React.Component {
 
       ref.child("album_templates").push(newAlbumTemplate);
 
+      console.log('New template created')
+
       this.closeModal();
 
     } else if (this.state.newTemplateName === '' && this.state.layerOne.length === 0) {
@@ -54,27 +56,29 @@ export default class TemplateSingle extends React.Component {
 
   updateTemplate = async (index) => {
     // Check that new template name doesnt equal empty string or all spaces
-    const templateNameChanged = this.state.templateNewName !== '' && this.state.templateNewName.trim() !== "";
-    const foldersChanged = this.state.layerOne !== this.state.layerOneOriginal;
+    const templateNameChanged = this.state.templateNewName !== '' && this.state.templateNewName.trim() !== '';
+    const foldersChanged = this.compareArrays(this.state.layerOne, this.state.layerOneOriginal);
+    
     if (templateNameChanged || foldersChanged) {
       const uid = await this.getUID();
       let ref = firebase.database().ref('/users/' + uid).child("album_templates");
 
       let updatedTemplate = {
-        title: this.state.templateNewName,
+        title: templateNameChanged ? this.state.templateNewName : this.state.templateCurrentName,
         folders: this.state.layerOne
       }
-      console.log('update either name, title, or both.... or just use code below and handle the title')
-      // ref.once('value').then(snapshot => {
-      //   let templates = snapshot.val();
-      //   if (templates !== null) {
-      //     const templateToUpdate = Object.keys(templates)[index];
-      //     if (templateToUpdate) {
-      //       ref.child(templateToUpdate).set(updatedTemplate);
-      //       console.log(`Template ${templateToUpdate} updated.`);
-      //     }
-      //   }
-      // })
+      
+      ref.once('value').then(snapshot => {
+        let templates = snapshot.val();
+        if (templates !== null) {
+          const templateToUpdate = Object.keys(templates)[index];
+          if (templateToUpdate) {
+            ref.child(templateToUpdate).set(updatedTemplate);
+            console.log(`Template ${templateToUpdate} updated.`);
+            this.closeModal();
+          }
+        }
+      })
 
 
     } else {
@@ -131,8 +135,9 @@ export default class TemplateSingle extends React.Component {
     })
 
     this.setState({
-      layerOne: folderListCurrent,
-      layerOneOriginal: folderListCurrent,
+      templateCurrentName: templateTitle,
+      layerOne: [...folderListCurrent],
+      layerOneOriginal: [...folderListCurrent],
       viewModal: true
     })
   }
@@ -140,11 +145,22 @@ export default class TemplateSingle extends React.Component {
   closeModal = () => {
     this.setState({
       viewModal: false,
+      templateCurrentName: '',
       templateNewName: '',
       layerOne: [],
       layerOneOriginal: [],
       layerTwo: []
     })
+  }
+
+  compareArrays = (arr1, arr2) => {
+    if (arr1.length !== arr2.length) return true;
+
+    for (let i = 0; i < arr1.length; i++) {
+      if (arr1[i] !== arr2[i]) return true;
+    }
+
+    return false;
   }
 
   render() {
