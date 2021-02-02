@@ -85,7 +85,7 @@ export default class TemplateSingle extends React.Component {
       alert('No changes detected.')
     }
   }
-
+  // TODO :: Make it so that user can delete folders, also in TemplateNew.js
   deleteTemplate = async (event, index) => {
     const uid = await this.getUID();
     let ref = firebase.database().ref('/users/' + uid).child("album_templates");
