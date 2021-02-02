@@ -1,30 +1,48 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import React from 'react';
+import { StyleSheet, TouchableOpacity, Text, View, Modal, Button, TextInput, Alert} from 'react-native';
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function Templates() {
-  const [newTemplate, buildNewTemplate] = useState({});
-  // #1 Name the template
-  // #2 Let user create new inputs - will need a method that returns an input field
-  
-  const createTemplate = async () => {
-    // Create a template format and save to database
-    const uid = await getUID();
-    let ref = firebase.database().ref('/users/' + uid);
+import TemplateSingle from './components/TemplateSingle';
+import TemplateNew from './components/TemplateNew';
 
-    // **** I need to figure out how to be able to create deeper folders with Firebase, it won't take an array :/
-    // Using a static test template for now, but will eventually be a dynamic one (aka object) that user creates
-    let newAlbumTemplate = {
-      title: 'test-template',
-      folders: ['foundation', 'roof', 'plumbing']
+export default class Templates extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      allTemplates: [],
+      viewModal: false,
+      // newTemplateName: '',
+      // layerOne: [],
+      // layerTwo: []
     }
-
-    ref.child("album_templates").push(newAlbumTemplate);
   }
 
-  const getDBToken = async () => {
+  // TODO: Cache pulled templates
+  componentDidMount() {
+    this.loadTemplatesFromFirebase();
+  }
+  // ehh..
+  componentDidUpdate() {
+    this.loadTemplatesFromFirebase();
+  }
+
+  // TODO: Loading screen while templates are being fetched from Firebase
+  loadTemplatesFromFirebase = async () => {
+    const uid = await this.getUID();
+    let ref = firebase.database().ref('users/' + uid).child("album_templates");
+    ref.once('value').then(snapshot => {
+      let templates = snapshot.val();
+      if (templates !== null) {
+        this.setState({ allTemplates: templates });
+      }
+    })
+  }
+
+  // TODO: Put these into separate utility functions file
+  // This gets Dropbox token? Dont think I need here
+  getDBToken = async () => {
     try {
       const value = await AsyncStorage.getItem('@storage_Key')
       if(value !== null) {
@@ -35,7 +53,7 @@ export default function Templates() {
     }
   }
 
-  const getUID = async () => {
+  getUID = async () => {
     try {
       const value = await AsyncStorage.getItem('@user_Id')
       if(value !== null) {
@@ -46,22 +64,214 @@ export default function Templates() {
     }
   }
 
-  return (
-    <View style={styles.container}>
-      <Text>Templates</Text>
-      <Text>Template 1</Text>
-      <Text>Template 2</Text>
-      <Button title="Create Template" onPress={() => createTemplate()}/>
-      <StatusBar style="auto" />
-    </View>
-  );
+  
+  // This function uses current state to create the template
+  // createTemplate = async () => {
+  //   if (this.state.newTemplateName !== '' && this.state.layerOne.length !== 0) {
+  //     // Create a template format and save to database
+  //     const uid = await this.getUID();
+  //     let ref = firebase.database().ref('/users/' + uid);
+
+  //     // TODO: Decide on how many layers deep I wanna let the user create and figure out how to handle it
+  //     let newAlbumTemplate = {
+  //       title: this.state.newTemplateName,
+  //       folders: this.state.layerOne
+  //     }
+
+  //     ref.child("album_templates").push(newAlbumTemplate);
+
+  //     this.closeModal();
+
+  //   } else if (this.state.newTemplateName === '' && this.state.layerOne.length === 0) {
+  //     alert('Please fill in template name and create at least one folder.');
+  //   } else if (this.state.newTemplateName === '') {
+  //     alert('Please fill in template name.');
+  //   } else {
+  //     alert('Please create at least one folder.');
+  //   }
+  // }
+
+  // deleteTemplate = async (event, index) => {
+  //   const uid = await this.getUID();
+  //   let ref = firebase.database().ref('/users/' + uid).child("album_templates");
+
+  //   ref.once('value').then(snapshot => {
+  //     let templates = snapshot.val();
+  //     if (templates !== null) {
+  //       const templateToDelete = Object.keys(templates)[index];
+  //       if (templateToDelete) {
+  //         ref.child(templateToDelete).remove();
+  //         console.log(`Template ${templateToDelete} deleted.`);
+  //       }
+  //     }
+  //   })
+  // }
+
+  // handleTemplateName = (name) => {
+  //   this.setState({ newTemplateName: name });
+  // }
+
+  // handleFolderName = (event, index) => {
+  //   const text = event.nativeEvent.text;
+
+  //   let layerOneNew = this.state.layerOne;
+  //   layerOneNew[index] = text;
+
+  //   this.setState({ layerOne: layerOneNew });
+  // }
+
+  // addFolder = () => {
+  //   const defaultName = this.state.layerOne.length;
+  //   this.setState({ 
+  //     layerOne: [...this.state.layerOne, `Folder ${defaultName + 1}`]
+  //   })
+  // }
+
+  closeNewTemplateModal = () => {
+    this.setState({
+      // newTemplateName: '',
+      // layerOne: [],
+      // layerTwo: [],
+      viewModal: false
+    })
+  }
+
+  renderSavedTemplates = () => {
+    const templates = this.state.allTemplates;
+    return (
+      <View style={styles.loadedTemplatesList}>
+        {Object.keys(templates).map((template, index) => (
+          <TemplateSingle
+            templates={templates}
+            template={template}
+            key={index} 
+            index={index}
+          />
+        ))}
+      </View>
+    )
+  }
+
+  render() {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.pageHeading}>Templates</Text>
+        { this.renderSavedTemplates() }
+        { this.state.viewModal && (
+        <TemplateNew
+          viewModal={this.state.viewModal}
+          closeModal={this.closeNewTemplateModal}
+        />
+          // <View style={styles.modalContainer}>
+          //   <Modal animationType="slide">
+          //     <View style={styles.modalContent}>
+          //       <Text style={styles.modalHeading}>New Template</Text>
+          //       <TextInput
+          //         style={styles.modalNewTemplateName}
+          //         placeholder="Template Name"
+          //         onChangeText={this.handleTemplateName}
+          //         value={this.state.newTemplateName}
+          //       />
+          //       <View style={styles.newFoldersList}>
+          //         {this.state.layerOne.length !== 0 && this.state.layerOne.map((folder, index) => (
+          //           <TextInput
+          //             style={styles.modalNewFolder}
+          //             key={index}
+          //             placeholder={`Folder ${index+1}`}
+          //             value={this.state.layerOne[index]}
+          //             onChange={(event) => this.handleFolderName(event, index)}
+          //           />
+          //         ))}
+          //         <View style={styles.addFolder}><Button title="Add Folder" onPress={() => this.addFolder()}/></View>
+          //       </View>
+          //       <Button title="Save Template" onPress={() => this.createTemplate()}/>
+          //       <Button
+          //         title="Close"
+          //         onPress={() => Alert.alert(
+          //           'You sure?',
+          //           'You will lose your current progress on this new template.',
+          //           [
+          //             {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+          //             {text: 'OK', onPress: this.closeModal}
+          //           ]
+          //         )}
+
+          //       />
+          //     </View>
+          //   </Modal>
+          // </View>
+        )}
+        <Button title="Create New Template" onPress={() => this.setState({ viewModal: true })}/>
+        <StatusBar style="auto" />
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    marginTop: 60,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
+  pageHeading: {
+    fontSize: 30,
+    fontWeight: 'bold'
+  },
+
+  // Loaded Templates
+  loadedTemplatesList: {
+    backgroundColor: '#f7f7f7',
+    width: '90%'
+  },
+  loadedTemplatesSingle: {
+    margin: 5,
+    padding: 5
+  },
+  loadedTemplateRow1: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  loadedTemplateTitle: {
+    color: 'orange',
+    fontSize: 20
+  },
+  deleteButton: {
+    padding: 5,
+    backgroundColor: 'red'
+  },
+  loadedTemplateFolders: {
+    margin: 5
+  },
+
+  // New Template Modal
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22
+  },
+  modalContent: {
+    marginTop: 60,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalHeading: {
+    fontSize: 28,
+    fontWeight: '600'
+  },
+  newFoldersList: {
+    backgroundColor: '#f7f7f7',
+    width: '90%'
+  },
+  modalNewTemplateName: {
+    padding: 10,
+    fontSize: 26
+  },
+  modalNewFolder: {
+    padding: 10,
+    fontSize: 20
+  }
 });
