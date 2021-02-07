@@ -3,6 +3,7 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, Text, View, Modal, Button, TextInput, Alert} from 'react-native';
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getUID } from '../util';
 
 import TemplateSingle from './components/TemplateSingle';
 import TemplateNew from './components/TemplateNew';
@@ -12,14 +13,13 @@ export default class Templates extends React.Component {
     super(props);
     this.state = {
       allTemplates: [],
-      viewModal: false,
-      // newTemplateName: '',
-      // layerOne: [],
-      // layerTwo: []
+      viewModal: false
     }
   }
 
-  // TODO: Cache pulled templates
+  // TODO: Refactor all code having to do with Object.keys() -ing templates and use Object.values() intead
+
+  // TODO: Cache pulled templates - maybe???
   componentDidMount() {
     this.loadTemplatesFromFirebase();
   }
@@ -28,9 +28,9 @@ export default class Templates extends React.Component {
     this.loadTemplatesFromFirebase();
   }
 
-  // TODO: Loading screen while templates are being fetched from Firebase
+  // TODO: Loading text while templates are being fetched from Firebase (ex. "Loading templates...")
   loadTemplatesFromFirebase = async () => {
-    const uid = await this.getUID();
+    const uid = await getUID();
     let ref = firebase.database().ref('users/' + uid).child("album_templates");
     ref.once('value').then(snapshot => {
       let templates = snapshot.val();
@@ -40,98 +40,8 @@ export default class Templates extends React.Component {
     })
   }
 
-  // TODO: Put these into separate utility functions file
-  // This gets Dropbox token? Dont think I need here
-  getDBToken = async () => {
-    try {
-      const value = await AsyncStorage.getItem('@storage_Key')
-      if(value !== null) {
-        return value;
-      }
-    } catch(e) {
-      console.error(e);
-    }
-  }
-
-  getUID = async () => {
-    try {
-      const value = await AsyncStorage.getItem('@user_Id')
-      if(value !== null) {
-        return value;
-      }
-    } catch(e) {
-      console.error(e);
-    }
-  }
-
-  
-  // This function uses current state to create the template
-  // createTemplate = async () => {
-  //   if (this.state.newTemplateName !== '' && this.state.layerOne.length !== 0) {
-  //     // Create a template format and save to database
-  //     const uid = await this.getUID();
-  //     let ref = firebase.database().ref('/users/' + uid);
-
-  //     // TODO: Decide on how many layers deep I wanna let the user create and figure out how to handle it
-  //     let newAlbumTemplate = {
-  //       title: this.state.newTemplateName,
-  //       folders: this.state.layerOne
-  //     }
-
-  //     ref.child("album_templates").push(newAlbumTemplate);
-
-  //     this.closeModal();
-
-  //   } else if (this.state.newTemplateName === '' && this.state.layerOne.length === 0) {
-  //     alert('Please fill in template name and create at least one folder.');
-  //   } else if (this.state.newTemplateName === '') {
-  //     alert('Please fill in template name.');
-  //   } else {
-  //     alert('Please create at least one folder.');
-  //   }
-  // }
-
-  // deleteTemplate = async (event, index) => {
-  //   const uid = await this.getUID();
-  //   let ref = firebase.database().ref('/users/' + uid).child("album_templates");
-
-  //   ref.once('value').then(snapshot => {
-  //     let templates = snapshot.val();
-  //     if (templates !== null) {
-  //       const templateToDelete = Object.keys(templates)[index];
-  //       if (templateToDelete) {
-  //         ref.child(templateToDelete).remove();
-  //         console.log(`Template ${templateToDelete} deleted.`);
-  //       }
-  //     }
-  //   })
-  // }
-
-  // handleTemplateName = (name) => {
-  //   this.setState({ newTemplateName: name });
-  // }
-
-  // handleFolderName = (event, index) => {
-  //   const text = event.nativeEvent.text;
-
-  //   let layerOneNew = this.state.layerOne;
-  //   layerOneNew[index] = text;
-
-  //   this.setState({ layerOne: layerOneNew });
-  // }
-
-  // addFolder = () => {
-  //   const defaultName = this.state.layerOne.length;
-  //   this.setState({ 
-  //     layerOne: [...this.state.layerOne, `Folder ${defaultName + 1}`]
-  //   })
-  // }
-
   closeNewTemplateModal = () => {
     this.setState({
-      // newTemplateName: '',
-      // layerOne: [],
-      // layerTwo: [],
       viewModal: false
     })
   }
