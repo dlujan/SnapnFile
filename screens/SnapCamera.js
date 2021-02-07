@@ -4,15 +4,18 @@ import { Camera } from 'expo-camera';
 import * as Permissions from 'expo-permissions';
 import { FontAwesome, Ionicons,MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default class App extends React.Component {
   state = {
     hasPermission: null,
     cameraType: Camera.Constants.Type.back,
+    allAlbums: []
   }
 
   async componentDidMount() {
-    this.getPermissionAsync()
+    this.getPermissionAsync();
+    this.getSavedAlbums();
   }
 
   getPermissionAsync = async () => {
@@ -49,6 +52,19 @@ export default class App extends React.Component {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images
     });
+  }
+
+  getSavedAlbums = async () => {
+    try {
+      const savedAlbums = await AsyncStorage.getItem('@storage_savedAlbums')
+      if(savedAlbums !== null) {
+        // Replace current state (empty array) with new array coming in
+        this.setState({ allAlbums: JSON.parse(savedAlbums) })
+        console.log(this.state.allAlbums)
+      }
+    } catch(e) {
+      console.error(e);
+    }
   }
   
 

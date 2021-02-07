@@ -23,10 +23,10 @@ export default class Albums extends React.Component {
     this.state = {
       allTemplates: [],
       allAlbums: [],
-      newAlbum: {
-        name: '',
-        template: {}
-      }
+      // newAlbum: {
+      //   name: '',
+      //   template: {}
+      // }
     }
   }
 
@@ -35,6 +35,7 @@ export default class Albums extends React.Component {
     this.getSavedAlbums();
   }
 
+  // @TODO: Consider moving these methods into util.js
   loadTemplatesFromFirebase = async () => {
     const uid = await getUID();
     let ref = firebase.database().ref('users/' + uid).child("album_templates");
@@ -52,7 +53,6 @@ export default class Albums extends React.Component {
       if(savedAlbums !== null) {
         // Replace current state (empty array) with new array coming in
         this.setState({ allAlbums: JSON.parse(savedAlbums) })
-        console.log(this.state.allAlbums)
       }
     } catch(e) {
       console.error(e);
