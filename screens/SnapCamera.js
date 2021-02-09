@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View ,TouchableOpacity,Platform, } from 'react-native';
+import { StyleSheet, Text, View ,TouchableOpacity,Platform, } from 'react-native';
 import { Camera } from 'expo-camera';
 import * as Permissions from 'expo-permissions';
 import { FontAwesome, Ionicons,MaterialCommunityIcons } from '@expo/vector-icons';
@@ -10,6 +10,7 @@ export default class App extends React.Component {
   state = {
     hasPermission: null,
     cameraType: Camera.Constants.Type.back,
+    cameraFlash: Camera.Constants.FlashMode.off,
     allAlbums: []
   }
 
@@ -41,6 +42,10 @@ export default class App extends React.Component {
     })
   }
 
+  // handleCameraFlash = () => {
+
+  // }
+
   takePicture = async () => {
     if (this.camera) {
       let photo = await this.camera.takePictureAsync();
@@ -49,9 +54,10 @@ export default class App extends React.Component {
   }
 
   pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
+    let photo = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images
     });
+    console.log(photo);
   }
 
   getSavedAlbums = async () => {
@@ -77,7 +83,17 @@ export default class App extends React.Component {
     } else {
       return (
           <View style={{ flex: 1 }}>
-            <Camera style={{ flex: 1 }} type={this.state.cameraType}  ref={ref => {this.camera = ref}}>
+            <View style={styles.topBar}>
+              <Text>FLASH</Text>
+              <Text>Album</Text>
+              <Text>Folder</Text>
+            </View>
+            <Camera style={{ flex: 1 }} type={this.state.cameraType} flashMode={this.state.cameraFlash} ref={ref => {this.camera = ref}}>
+              <View style={styles.folderCarousel}>
+                <Text style={styles.folderAnimal}>Folder 1</Text>
+                <Text style={styles.folderAnimal}>Folder 2</Text>
+                <Text style={styles.folderAnimal}>Folder 3</Text>
+              </View>
               <View style={{flex:1, flexDirection:"row",justifyContent:"space-between",margin:30}}>
                 <TouchableOpacity
                   style={{
@@ -123,5 +139,25 @@ export default class App extends React.Component {
       );
     }
   }
-  
 }
+
+const styles = StyleSheet.create({
+  topBar: {
+    paddingTop: 80,
+    backgroundColor: '#fff',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  folderCarousel: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    marginTop: 500
+  },
+  folderAnimal: {
+    color: 'white',
+    alignSelf: 'flex-end'
+  }
+});
