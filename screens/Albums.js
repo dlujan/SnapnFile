@@ -61,8 +61,8 @@ export default class Albums extends React.Component {
 
   createAlbum = async () => {
     const testAlbum = {
-      name: 'Test Album',
-      template: this.state.allTemplates[0]
+      name: 'Fiesta 2021 July',
+      template: this.state.allTemplates[2]
     };
 
     // Create temporary copy of all albums in state and push new album to it

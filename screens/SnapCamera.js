@@ -6,12 +6,15 @@ import { FontAwesome, Ionicons,MaterialCommunityIcons } from '@expo/vector-icons
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default class App extends React.Component {
+export default class SnapCamera extends React.Component {
   state = {
     hasPermission: null,
     cameraType: Camera.Constants.Type.back,
     cameraFlash: Camera.Constants.FlashMode.off,
-    allAlbums: []
+    albumMenuExpanded: false,
+    folderMenuExpanded: false,
+    allAlbums: [],
+    selectedAlbum: {}
   }
 
   async componentDidMount() {
@@ -32,20 +35,6 @@ export default class App extends React.Component {
     this.setState({ hasPermission: status === 'granted' });
   }
 
-  handleCameraType=()=>{
-    const { cameraType } = this.state
-
-    this.setState({cameraType:
-      cameraType === Camera.Constants.Type.back
-      ? Camera.Constants.Type.front
-      : Camera.Constants.Type.back
-    })
-  }
-
-  // handleCameraFlash = () => {
-
-  // }
-
   takePicture = async () => {
     if (this.camera) {
       let photo = await this.camera.takePictureAsync();
@@ -65,14 +54,65 @@ export default class App extends React.Component {
       const savedAlbums = await AsyncStorage.getItem('@storage_savedAlbums')
       if(savedAlbums !== null) {
         // Replace current state (empty array) with new array coming in
-        this.setState({ allAlbums: JSON.parse(savedAlbums) })
-        console.log(this.state.allAlbums)
+        this.setState({
+          allAlbums: JSON.parse(savedAlbums),
+          selectedAlbum: JSON.parse(savedAlbums)[0] // TEMPORARY :: SET DEFAULT SELECTED ALBUM TO FIRST IN LIST
+        })
+        console.log(this.state.selectedAlbum)
       }
     } catch(e) {
       console.error(e);
     }
   }
-  
+
+  handleCameraType=()=>{
+    const { cameraType } = this.state;
+
+    this.setState({cameraType:
+      cameraType === Camera.Constants.Type.back
+      ? Camera.Constants.Type.front
+      : Camera.Constants.Type.back
+    })
+  }
+
+  toggleFlash = () => {
+    const { cameraFlash } = this.state;
+
+    this.setState({cameraFlash:
+      cameraFlash === Camera.Constants.FlashMode.off
+      ? Camera.Constants.FlashMode.on
+      : Camera.Constants.FlashMode.off
+    })
+  }
+
+  toggleAlbumSelect = () => {
+    const { albumMenuExpanded } = this.state;
+
+    this.setState({albumMenuExpanded:
+      albumMenuExpanded === false
+      ? true
+      : false
+    })
+  }
+
+  toggleFolderSelect = () => {
+    const { folderMenuExpanded } = this.state;
+
+    this.setState({folderMenuExpanded:
+      folderMenuExpanded === false
+      ? true
+      : false
+    })
+  }
+
+  handleAlbumSelect = (index) => {
+    this.setState({ selectedAlbum: this.state.allAlbums[index] })
+    this.toggleAlbumSelect();
+  }
+
+  // handleFolderSelect = () => {
+
+  // }
 
   render(){
     const { hasPermission } = this.state
@@ -84,16 +124,42 @@ export default class App extends React.Component {
       return (
           <View style={{ flex: 1 }}>
             <View style={styles.topBar}>
-              <Text>FLASH</Text>
-              <Text>Album</Text>
-              <Text>Folder</Text>
+              <TouchableOpacity
+                onPress={() => this.toggleFlash()}
+              >
+                {this.state.cameraFlash ? (
+                  <Ionicons
+                  name="ios-flash"
+                  style={{ color: "#000", fontSize: 40}}
+                  />
+                ) : (
+                  <Ionicons
+                  name="ios-flash-off"
+                  style={{ color: "#000", fontSize: 40}}
+                  />
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => this.toggleAlbumSelect()}>
+                <Text>{this.state.selectedAlbum.name}</Text>
+                {this.state.albumMenuExpanded && (
+                  <View style={styles.albumMenu}>
+                    {this.state.allAlbums.map((album, index) => (
+                      <TouchableOpacity onPress={() => this.handleAlbumSelect(index)} key={index}><Text>{album.name}</Text></TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+              </TouchableOpacity>
+              {/* TODO: Copy above code for folder too */}
+              <TouchableOpacity onPress={() => this.toggleFolderSelect()}><Text>Folder</Text></TouchableOpacity>
             </View>
             <Camera style={{ flex: 1 }} type={this.state.cameraType} flashMode={this.state.cameraFlash} ref={ref => {this.camera = ref}}>
-              <View style={styles.folderCarousel}>
-                <Text style={styles.folderAnimal}>Folder 1</Text>
-                <Text style={styles.folderAnimal}>Folder 2</Text>
-                <Text style={styles.folderAnimal}>Folder 3</Text>
+              {this.state.allAlbums.length !== 0 && (
+                <View style={styles.folderCarousel}>
+                {this.state.selectedAlbum.template.folders.map((name, index) => (
+                  <Text style={styles.folderAnimal} key={index}>{name}</Text>
+                ))}
               </View>
+              )}
               <View style={{flex:1, flexDirection:"row",justifyContent:"space-between",margin:30}}>
                 <TouchableOpacity
                   style={{
@@ -147,7 +213,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
+  },
+  albumMenu: {
+    top: 0,
   },
   folderCarousel: {
     flex: 1,
