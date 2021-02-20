@@ -1,10 +1,12 @@
 import React from 'react';
-import { StyleSheet, Text, View ,TouchableOpacity,Platform, } from 'react-native';
+import { StyleSheet, Text, View ,TouchableOpacity, Platform, Image} from 'react-native';
 import { Camera } from 'expo-camera';
 import * as Permissions from 'expo-permissions';
 import { FontAwesome, Ionicons,MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system';
 
 export default class SnapCamera extends React.Component {
   state = {
@@ -14,12 +16,24 @@ export default class SnapCamera extends React.Component {
     albumMenuExpanded: false,
     folderMenuExpanded: false,
     allAlbums: [],
-    selectedAlbum: {}
+    selectedAlbum: {},
+    selectedFolder: '',
+
+    testUri: ''
   }
 
   async componentDidMount() {
     this.getPermissionAsync();
     this.getSavedAlbums();
+
+    this.setState({
+      testUri: 'file:///var/mobile/Containers/Data/Application/84978127-DA5B-4EE4-9CAC-EC88910B901C/Documents/ExponentExperienceData/%2540dlujan%252FSnapnFile/photos/1613853347370.jpg'
+    })
+
+    console.log(await FileSystem.readDirectoryAsync(FileSystem.documentDirectory + 'photos'))
+
+    // await FileSystem.deleteAsync(FileSystem.documentDirectory + 'photos' + '/1613857689090.jpg');
+
   }
 
   getPermissionAsync = async () => {
@@ -38,7 +52,33 @@ export default class SnapCamera extends React.Component {
   takePicture = async () => {
     if (this.camera) {
       let photo = await this.camera.takePictureAsync();
-      console.log(photo);
+
+      // ***** Just for testing
+      this.setState({ testUri: photo.uri })
+      // ***** Just for testing
+
+      // Check if user photo directory exists, if not, create it
+      const USER_PHOTO_DIR = FileSystem.documentDirectory + 'photos';
+      const folderInfo = await FileSystem.getInfoAsync(USER_PHOTO_DIR);
+      if (!folderInfo.exists) {
+        await FileSystem.makeDirectoryAsync(USER_PHOTO_DIR);
+      }
+      
+      // Save taken image to device
+      const imageName = `${Date.now()}.jpg`;
+      const NEW_PHOTO_URI = `${USER_PHOTO_DIR}/${imageName}`;
+
+      await FileSystem.copyAsync({
+        from: photo.uri,
+        to: NEW_PHOTO_URI
+      })
+      .then(() => {
+        console.log(`File ${photo.uri} was saved as ${NEW_PHOTO_URI}`)
+
+        // Store image info inside database - store the file system image uri, album id, and folder name
+        
+      })
+      .catch(error => { console.error(error) })
     }
   }
 
@@ -56,9 +96,9 @@ export default class SnapCamera extends React.Component {
         // Replace current state (empty array) with new array coming in
         this.setState({
           allAlbums: JSON.parse(savedAlbums),
-          selectedAlbum: JSON.parse(savedAlbums)[0] // TEMPORARY :: SET DEFAULT SELECTED ALBUM TO FIRST IN LIST
+          selectedAlbum: JSON.parse(savedAlbums)[0], // TEMPORARY :: SET DEFAULT SELECTED ALBUM TO FIRST IN LIST
+          selectedFolder: JSON.parse(savedAlbums)[0].template.folders[0]
         })
-        console.log(this.state.selectedAlbum)
       }
     } catch(e) {
       console.error(e);
@@ -151,6 +191,14 @@ export default class SnapCamera extends React.Component {
               </TouchableOpacity>
               {/* TODO: Copy above code for folder too */}
               <TouchableOpacity onPress={() => this.toggleFolderSelect()}><Text>Folder</Text></TouchableOpacity>
+
+              <Image
+                style={{width: 23, height: 38}}
+                source={{
+                  uri: this.state.testUri,
+                }}
+              />
+
             </View>
             <Camera style={{ flex: 1 }} type={this.state.cameraType} flashMode={this.state.cameraFlash} ref={ref => {this.camera = ref}}>
               {this.state.allAlbums.length !== 0 && (

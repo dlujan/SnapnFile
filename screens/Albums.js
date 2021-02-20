@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import { StyleSheet, Text, View, Button} from 'react-native';
 
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -61,8 +61,9 @@ export default class Albums extends React.Component {
 
   createAlbum = async () => {
     const testAlbum = {
-      name: 'Fiesta 2021 July',
-      template: this.state.allTemplates[2]
+      id: Date.now(),
+      name: 'Wednesday Inspection',
+      template: this.state.allTemplates[0]
     };
 
     // Create temporary copy of all albums in state and push new album to it

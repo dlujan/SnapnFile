@@ -16,6 +16,7 @@
     "expo": "~38.0.8",
     "expo-auth-session": "~1.4.0",
     "expo-camera": "~8.3.1",
+    "expo-file-system": "~9.0.1",
     "expo-google-app-auth": "^8.1.2",
     "expo-image-picker": "~8.3.0",
     "expo-permissions": "~9.0.1",
