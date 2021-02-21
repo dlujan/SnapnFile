@@ -7,6 +7,9 @@ import * as ImagePicker from 'expo-image-picker';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
+import * as SQLite from 'expo-sqlite';
+
+const db = SQLite.openDatabase('photos.db');
 
 export default class SnapCamera extends React.Component {
   state = {
@@ -23,16 +26,31 @@ export default class SnapCamera extends React.Component {
   }
 
   async componentDidMount() {
-    this.getPermissionAsync();
-    this.getSavedAlbums();
-
     this.setState({
       testUri: 'file:///var/mobile/Containers/Data/Application/84978127-DA5B-4EE4-9CAC-EC88910B901C/Documents/ExponentExperienceData/%2540dlujan%252FSnapnFile/photos/1613853347370.jpg'
     })
 
+
+    this.getPermissionAsync();
+    this.getSavedAlbums();
+
+    db.transaction(tx => {
+      tx.executeSql(
+        'CREATE TABLE if not exists photos (id integer primary key not null, album_id int, image_uri text, folder_name text);'
+      );
+      tx.executeSql("select * from photos", [], (_, { rows }) =>
+        console.log(JSON.stringify(rows))
+      );
+      // DEV : Delete a row from photos table manually
+      // tx.executeSql('delete from photos where id = ?;', [1]);
+    });
+
+
+    // DEV : Print all images saved to file system
     console.log(await FileSystem.readDirectoryAsync(FileSystem.documentDirectory + 'photos'))
 
-    // await FileSystem.deleteAsync(FileSystem.documentDirectory + 'photos' + '/1613857689090.jpg');
+    // DEV : Remove specific image from file system
+    //await FileSystem.deleteAsync(FileSystem.documentDirectory + 'photos' + '/1613949487557.jpg');
 
   }
 
@@ -76,6 +94,15 @@ export default class SnapCamera extends React.Component {
         console.log(`File ${photo.uri} was saved as ${NEW_PHOTO_URI}`)
 
         // Store image info inside database - store the file system image uri, album id, and folder name
+        db.transaction(tx => {
+          tx.executeSql('insert into photos (album_id, image_uri, folder_name) values (?,?,?)',
+            [this.state.selectedAlbum.id, NEW_PHOTO_URI, this.state.selectedFolder],
+            () => console.log('Image added to database...')
+          );
+          tx.executeSql('select * from photos', [], (_, { rows }) =>
+            console.log(JSON.stringify(rows))
+          );
+        })
         
       })
       .catch(error => { console.error(error) })
