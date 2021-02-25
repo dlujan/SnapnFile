@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View ,TouchableOpacity, Platform, Image} from 'react-native';
+import { StyleSheet, Text, View ,TouchableOpacity, Platform, Image, FlatList} from 'react-native';
 import { Camera } from 'expo-camera';
 import * as Permissions from 'expo-permissions';
 import { FontAwesome, Ionicons,MaterialCommunityIcons } from '@expo/vector-icons';
@@ -67,6 +67,23 @@ export default class SnapCamera extends React.Component {
     this.setState({ hasPermission: status === 'granted' });
   }
 
+  getSavedAlbums = async () => {
+    try {
+      const savedAlbums = await AsyncStorage.getItem('@storage_savedAlbums')
+      if(savedAlbums !== null) {
+        // Replace current state (empty array) with new array coming in
+        this.setState({
+          allAlbums: JSON.parse(savedAlbums),
+          selectedAlbum: JSON.parse(savedAlbums)[0], // TEMPORARY :: SET DEFAULT SELECTED ALBUM TO FIRST IN LIST
+          selectedFolder: JSON.parse(savedAlbums)[0].template.folders[0]
+        })
+        console.log(this.state.selectedAlbum);
+      }
+    } catch(e) {
+      console.error(e);
+    }
+  }
+
   takePicture = async () => {
     if (this.camera) {
       let photo = await this.camera.takePictureAsync();
@@ -116,22 +133,6 @@ export default class SnapCamera extends React.Component {
     console.log(photo);
   }
 
-  getSavedAlbums = async () => {
-    try {
-      const savedAlbums = await AsyncStorage.getItem('@storage_savedAlbums')
-      if(savedAlbums !== null) {
-        // Replace current state (empty array) with new array coming in
-        this.setState({
-          allAlbums: JSON.parse(savedAlbums),
-          selectedAlbum: JSON.parse(savedAlbums)[0], // TEMPORARY :: SET DEFAULT SELECTED ALBUM TO FIRST IN LIST
-          selectedFolder: JSON.parse(savedAlbums)[0].template.folders[0]
-        })
-      }
-    } catch(e) {
-      console.error(e);
-    }
-  }
-
   handleCameraType=()=>{
     const { cameraType } = this.state;
 
@@ -172,14 +173,22 @@ export default class SnapCamera extends React.Component {
     })
   }
 
+  // Drop down and slider select
   handleAlbumSelect = (index) => {
     this.setState({ selectedAlbum: this.state.allAlbums[index] })
+    console.log(this.state.selectedAlbum);
     this.toggleAlbumSelect();
   }
 
   // handleFolderSelect = () => {
 
   // }
+
+  scrollToFolder = (index) => {
+    this.flatListRef.scrollToIndex({animated: true, index: index})
+    this.setState({ selectedFolder: this.state.selectedAlbum.template.folders[index] })
+    console.log(`Selected ${this.state.selectedFolder}`)
+  }
 
   render(){
     const { hasPermission } = this.state
@@ -217,7 +226,7 @@ export default class SnapCamera extends React.Component {
                 )}
               </TouchableOpacity>
               {/* TODO: Copy above code for folder too */}
-              <TouchableOpacity onPress={() => this.toggleFolderSelect()}><Text>Folder</Text></TouchableOpacity>
+              <TouchableOpacity onPress={() => this.toggleFolderSelect()}><Text>{this.state.selectedFolder}</Text></TouchableOpacity>
 
               <Image
                 style={{width: 23, height: 38}}
@@ -228,12 +237,33 @@ export default class SnapCamera extends React.Component {
 
             </View>
             <Camera style={{ flex: 1 }} type={this.state.cameraType} flashMode={this.state.cameraFlash} ref={ref => {this.camera = ref}}>
+
               {this.state.allAlbums.length !== 0 && (
-                <View style={styles.folderCarousel}>
-                {this.state.selectedAlbum.template.folders.map((name, index) => (
-                  <Text style={styles.folderAnimal} key={index}>{name}</Text>
-                ))}
-              </View>
+                <View style={styles.flatListContainer}>
+                  <FlatList
+                    ref={(ref) => {this.flatListRef = ref;}}
+                    showsHorizontalScrollIndicator={false}
+                    data={this.state.selectedAlbum.template.folders}
+                    keyExtractor={(item, index) => item}
+                    horizontal
+                    snapToInterval={20}
+                    snapToAlignment={'center'}
+                    decelerationRate={0}
+                    bounces={false}
+                    contentContainerStyle={{
+                      alignItems: 'center'
+                    }}
+                    renderItem={({ item, index }) => {
+                      return (
+                        <TouchableOpacity style={styles.flatListItem} onPress={() => this.scrollToFolder(index)}>
+                          <Text style={styles.folderText}>{this.state.selectedAlbum.template.folders[index]}</Text>
+                        </TouchableOpacity>
+                      )
+                    }}
+                  >
+                  </FlatList>
+                </View>
+
               )}
               <View style={{flex:1, flexDirection:"row",justifyContent:"space-between",margin:30}}>
                 <TouchableOpacity
@@ -293,15 +323,15 @@ const styles = StyleSheet.create({
   albumMenu: {
     top: 0,
   },
-  folderCarousel: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    marginTop: 500
+  flatListContainer: {
+    marginTop: '125%'
   },
-  folderAnimal: {
-    color: 'white',
-    alignSelf: 'flex-end'
+  flatListItem: {
+    backgroundColor: '#b55f19',
+    padding: 10,
+    marginHorizontal: 16
+  },
+  folderText: {
+    color: 'white'
   }
 });

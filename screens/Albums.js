@@ -62,7 +62,7 @@ export default class Albums extends React.Component {
   createAlbum = async () => {
     const testAlbum = {
       id: Date.now(),
-      name: 'Wednesday Inspection',
+      name: 'Thursday Inspection',
       template: this.state.allTemplates[0]
     };
 
