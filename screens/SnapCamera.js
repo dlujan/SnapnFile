@@ -175,7 +175,10 @@ export default class SnapCamera extends React.Component {
 
   // Drop down and slider select
   handleAlbumSelect = (index) => {
-    this.setState({ selectedAlbum: this.state.allAlbums[index] })
+    this.setState({
+      selectedAlbum: this.state.allAlbums[index],
+      selectedFolder: this.state.allAlbums[index].template.folders[0]
+    })
     console.log(this.state.selectedAlbum);
     this.toggleAlbumSelect();
   }
