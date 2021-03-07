@@ -27,7 +27,7 @@ export default class SnapCamera extends React.Component {
 
   async componentDidMount() {
     this.setState({
-      testUri: 'file:///var/mobile/Containers/Data/Application/84978127-DA5B-4EE4-9CAC-EC88910B901C/Documents/ExponentExperienceData/%2540dlujan%252FSnapnFile/photos/1613853347370.jpg'
+      testUri: 'https://daniellujan.com/wp-content/themes/portfolio-website-updated/images/me-profile-img.jpg'
     })
 
 
@@ -42,7 +42,7 @@ export default class SnapCamera extends React.Component {
         console.log(JSON.stringify(rows))
       );
       // DEV : Delete a row from photos table manually
-      // tx.executeSql('delete from photos where id = ?;', [1]);
+      //tx.executeSql('delete from photos where id = ?;', [7]);
     });
 
 
@@ -50,7 +50,7 @@ export default class SnapCamera extends React.Component {
     console.log(await FileSystem.readDirectoryAsync(FileSystem.documentDirectory + 'photos'))
 
     // DEV : Remove specific image from file system
-    //await FileSystem.deleteAsync(FileSystem.documentDirectory + 'photos' + '/1613949487557.jpg');
+    //await FileSystem.deleteAsync(FileSystem.documentDirectory + 'photos' + '/1615066259890.jpg');
 
   }
 

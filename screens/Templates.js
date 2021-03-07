@@ -17,7 +17,11 @@ export default class Templates extends React.Component {
     }
   }
 
+  // *******************************************
+  // *******************************************
   // TODO: Refactor all code having to do with Object.keys() -ing templates and use Object.values() intead
+  // *******************************************
+  // *******************************************
 
   // TODO: Cache pulled templates - maybe???
   componentDidMount() {

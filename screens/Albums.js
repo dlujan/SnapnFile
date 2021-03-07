@@ -4,7 +4,11 @@ import { StyleSheet, Text, View, Button} from 'react-native';
 
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getUID } from '../util';
+import * as FileSystem from 'expo-file-system';
+import * as SQLite from 'expo-sqlite';
+import { getUID, getDropboxToken } from '../util';
+
+const db = SQLite.openDatabase('photos.db');
 
 // @TODO ::
 
@@ -21,6 +25,7 @@ export default class Albums extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      photosFromDatabase: {},
       allTemplates: [],
       allAlbums: [],
       // newAlbum: {
@@ -31,8 +36,57 @@ export default class Albums extends React.Component {
   }
 
   componentDidMount() {
+    // TODO: Loading screen until all of these are done
     this.loadTemplatesFromFirebase();
     this.getSavedAlbums();
+    this.fetchAndSetPhotosFromDB();
+  }
+
+  fetchAndSetPhotosFromDB = async () => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'CREATE TABLE if not exists photos (id integer primary key not null, album_id int, image_uri text, folder_name text);'
+      );
+      tx.executeSql("select * from photos", [], (_, { rows }) => {
+        this.setState({
+          photosFromDatabase: rows
+        }, () => {
+          console.log(this.state.photosFromDatabase);
+        })
+      });
+    });
+  }
+
+  // ***** MUST PROMPT USER TO CONNECT TO DROPBOX TO GET TOKEN
+  uploadAlbumToDropbox = async (id) => {
+    console.log(`Filter for images with id: ${id}`);
+    const imagesArray = this.state.photosFromDatabase._array;
+    const filteredImages = imagesArray.filter(photo => photo.album_id === id);
+    // console.log(filteredImages);
+
+    // Step 1. Create the required folders in Dropbox
+    const token = await getDropboxToken();
+    const url = 'https://api.dropboxapi.com/2/files/create_folder_batch';
+    const headers = {
+      "Authorization": token,
+      "Content-Type": "application/json"
+    }
+    const data = {
+      "paths": ["/Fiesta 2021/Music", "/Fiesta 2021/Drinks"], // this is what I have to construct
+      "autorename": true,
+      "force_async": true
+    }
+    console.log(token);
+    // fetch(url, {
+    //   method: 'POST',
+    //   headers: headers,
+    //   body: data
+    // })
+    // .then(res => {
+    //   console.log(res);
+    // })
+
+    // Step 2. Upload images to those folders
   }
 
   // @TODO: Consider moving these methods into util.js
@@ -92,7 +146,11 @@ export default class Albums extends React.Component {
       <View style={styles.container}>
         <Text>Albums</Text>
         {this.state.allAlbums.map((album, index) => (
-          <Text key={index}>{album.name} - {album.template.title}</Text>
+          <View key={index}>
+            <Text>{album.name} - {album.template.title}</Text>
+            <Text>id: {album.id}</Text>
+            <Button title="Upload" onPress={() => this.uploadAlbumToDropbox(album.id)}></Button>
+          </View>
         ))}
         <Button title="Create Album" onPress={() => this.createAlbum()}/>
         <Button title="DELETE ALL" onPress={() => this.deleteAllAlbumData()}/>
