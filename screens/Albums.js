@@ -58,35 +58,57 @@ export default class Albums extends React.Component {
   }
 
   // ***** MUST PROMPT USER TO CONNECT TO DROPBOX TO GET TOKEN
-  uploadAlbumToDropbox = async (id) => {
+  uploadAlbumToDropbox = async (id, albumName) => {
     console.log(`Filter for images with id: ${id}`);
     const imagesArray = this.state.photosFromDatabase._array;
     const filteredImages = imagesArray.filter(photo => photo.album_id === id);
-    // console.log(filteredImages);
 
     // Step 1. Create the required folders in Dropbox
     const token = await getDropboxToken();
     const url = 'https://api.dropboxapi.com/2/files/create_folder_batch';
     const headers = {
-      "Authorization": token,
+      "Authorization": `Bearer ${token}`,
       "Content-Type": "application/json"
     }
+
+    // Construct the list of paths representing each unique folder name
+    let paths = [];
+    filteredImages.forEach(image => {
+      if (!paths.includes(`/${albumName}/${image.folder_name}`)) {
+        paths.push(`/${albumName}/${image.folder_name}`);
+      }
+    })
+
     const data = {
-      "paths": ["/Fiesta 2021/Music", "/Fiesta 2021/Drinks"], // this is what I have to construct
+      "paths": paths,
       "autorename": true,
       "force_async": true
     }
-    console.log(token);
-    // fetch(url, {
-    //   method: 'POST',
-    //   headers: headers,
-    //   body: data
-    // })
-    // .then(res => {
-    //   console.log(res);
-    // })
 
-    // Step 2. Upload images to those folders
+    if (paths.length > 0) {
+      fetch(url, {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: headers
+      })
+      .then(response => response.json()) 
+      .then(json => {
+        const job_id = json.async_job_id;
+        return fetch(`${url}/check`, {
+          method: "POST",
+          body: {"async_job_id": job_id},
+          headers: headers
+        })
+      })
+      .then(() => console.log('Album folders created in Dropbox account!'))
+      .then(() => {
+        console.log('Here, start uploading the files!')
+      })
+  
+      // Step 2. Upload images to those folders
+    } else {
+      console.log('Cant upload an empty album!');
+    }
   }
 
   // @TODO: Consider moving these methods into util.js
@@ -149,7 +171,7 @@ export default class Albums extends React.Component {
           <View key={index}>
             <Text>{album.name} - {album.template.title}</Text>
             <Text>id: {album.id}</Text>
-            <Button title="Upload" onPress={() => this.uploadAlbumToDropbox(album.id)}></Button>
+            <Button title="Upload" onPress={() => this.uploadAlbumToDropbox(album.id, album.name)}></Button>
           </View>
         ))}
         <Button title="Create Album" onPress={() => this.createAlbum()}/>
