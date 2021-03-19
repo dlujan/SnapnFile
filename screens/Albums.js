@@ -52,6 +52,7 @@ export default class Albums extends React.Component {
           photosFromDatabase: rows
         }, () => {
           console.log(this.state.photosFromDatabase);
+          //console.log('Photos from SQLite loaded into state')
         })
       });
     });
@@ -63,49 +64,33 @@ export default class Albums extends React.Component {
     const imagesArray = this.state.photosFromDatabase._array;
     const filteredImages = imagesArray.filter(photo => photo.album_id === id);
 
-    // Step 1. Create the required folders in Dropbox
     const token = await getDropboxToken();
-    const url = 'https://api.dropboxapi.com/2/files/create_folder_batch';
-    const headers = {
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json"
-    }
 
-    // Construct the list of paths representing each unique folder name
-    let paths = [];
-    filteredImages.forEach(image => {
-      if (!paths.includes(`/${albumName}/${image.folder_name}`)) {
-        paths.push(`/${albumName}/${image.folder_name}`);
+    if (filteredImages.length > 0) {
+
+      console.log('Uploading images to Dropbox...');
+
+      for (const image of filteredImages) {
+
+        try {
+          const response = await FileSystem.uploadAsync('https://content.dropboxapi.com/2/files/upload', image.image_uri, {
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "Content-Type": "application/octet-stream",
+              "Dropbox-API-Arg": JSON.stringify({
+                "path": `/${albumName}/${image.folder_name}/${image.folder_name}.jpg`,
+                "mode": "add",
+                "autorename": true,
+                "mute": false
+              })
+            }
+          })
+          console.log(response);
+        } catch (error) {
+          console.error(error);
+        }
       }
-    })
-
-    const data = {
-      "paths": paths,
-      "autorename": true,
-      "force_async": true
-    }
-
-    if (paths.length > 0) {
-      fetch(url, {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: headers
-      })
-      .then(response => response.json()) 
-      .then(json => {
-        const job_id = json.async_job_id;
-        return fetch(`${url}/check`, {
-          method: "POST",
-          body: {"async_job_id": job_id},
-          headers: headers
-        })
-      })
-      .then(() => console.log('Album folders created in Dropbox account!'))
-      .then(() => {
-        console.log('Here, start uploading the files!')
-      })
-  
-      // Step 2. Upload images to those folders
+      
     } else {
       console.log('Cant upload an empty album!');
     }
