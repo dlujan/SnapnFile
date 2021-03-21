@@ -70,6 +70,7 @@ export default class SnapCamera extends React.Component {
   getSavedAlbums = async () => {
     try {
       const savedAlbums = await AsyncStorage.getItem('@storage_savedAlbums')
+      console.log(savedAlbums)
       if(savedAlbums !== null) {
         // Replace current state (empty array) with new array coming in
         this.setState({

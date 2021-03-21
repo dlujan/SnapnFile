@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { StyleSheet, Text, View, Button, Modal, TextInput, Alert} from 'react-native';
+import RNPickerSelect from "react-native-picker-select";
 
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -30,7 +31,7 @@ export default class Albums extends React.Component {
       allTemplates: [],
       allAlbums: [],
       newAlbumName: '',
-      newAlbumTemplate: undefined // will be an int once chosen (0, 1, 2, etc.) - used as index when getting template from allTemplates
+      newAlbumTemplate: null // will be an int once chosen (0, 1, 2, etc.) - used as index when getting template from allTemplates
     }
   }
 
@@ -121,7 +122,7 @@ export default class Albums extends React.Component {
 
   createAlbum = async () => {
 
-    if (this.state.newAlbumName !== '' && this.state.newAlbumName.trim() !== "" && this.state.newAlbumTemplate !== undefined) {
+    if (this.state.newAlbumName !== '' && this.state.newAlbumName.trim() !== "" && this.state.newAlbumTemplate !== null) {
 
       const testAlbum = {
         id: Date.now(),
@@ -143,7 +144,7 @@ export default class Albums extends React.Component {
 
       this.closeNewAlbumModal();
 
-    } else if (this.state.newAlbumName === '' && this.state.newAlbumTemplate === undefined) {
+    } else if (this.state.newAlbumName === '' && this.state.newAlbumTemplate === null) {
       alert('Please fill in album name and pick a template.');
     } else if (this.state.newAlbumName === '') {
       alert('Please fill in album name.');
@@ -155,6 +156,7 @@ export default class Albums extends React.Component {
 
   }
 
+  // DEV only
   deleteAllAlbumData = async () => {
     try {
       await AsyncStorage.removeItem('@storage_savedAlbums')
@@ -165,10 +167,12 @@ export default class Albums extends React.Component {
 
   handleNewAlbumName = (name) => {
     this.setState({ newAlbumName: name });
+    console.log(this.state.newAlbumName)
   }
 
   handleNewAlbumTemplate = (index) => {
     this.setState({ newAlbumTemplate: index });
+    console.log(this.state.newAlbumTemplate)
   }
 
   closeNewAlbumModal = () => {
@@ -180,10 +184,13 @@ export default class Albums extends React.Component {
   }
 
   render() {
+    const templateOptions = this.state.allTemplates.map((template, index) => {
+      return { label: template.title, value: index }
+    })
     return (
       <View style={styles.container}>
         <Text>Albums</Text>
-        {this.state.allAlbums.map((album, index) => (
+        {this.state.allAlbums.length > 0 && this.state.allAlbums.map((album, index) => (
           <View key={index}>
             <Text>{album.name} - {album.template.title}</Text>
             <Text>id: {album.id}</Text>
@@ -200,6 +207,10 @@ export default class Albums extends React.Component {
                     placeholder="Album Name"
                     onChangeText={this.handleNewAlbumName}
                     value={this.state.newAlbumName}
+                />
+                <RNPickerSelect
+                 onValueChange={(value) => this.handleNewAlbumTemplate(value)}
+                 items={templateOptions}
                 />
                 <Button title="Save Album" onPress={() => this.createAlbum()}/>
                 <Button
@@ -218,6 +229,7 @@ export default class Albums extends React.Component {
           </View>
         )}
         <Button title="Create New Album" onPress={() => this.setState({ viewModal: true })}/>
+        <Button title="DELETE ALL ALBUMS" onPress={() => this.deleteAllAlbumData()}/>
         <StatusBar style="auto" />
       </View>
     );
@@ -240,6 +252,7 @@ const styles = StyleSheet.create({
   modalContent: {
     marginTop: 60,
     backgroundColor: '#fff',
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
