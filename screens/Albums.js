@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View, Button} from 'react-native';
+import { StyleSheet, Text, View, Button, Modal, TextInput, Alert} from 'react-native';
 
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -25,13 +25,12 @@ export default class Albums extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      viewModal: false,
       photosFromDatabase: {},
       allTemplates: [],
       allAlbums: [],
-      // newAlbum: {
-      //   name: '',
-      //   template: {}
-      // }
+      newAlbumName: '',
+      newAlbumTemplate: undefined // will be an int once chosen (0, 1, 2, etc.) - used as index when getting template from allTemplates
     }
   }
 
@@ -121,23 +120,36 @@ export default class Albums extends React.Component {
   }
 
   createAlbum = async () => {
-    const testAlbum = {
-      id: Date.now(),
-      name: 'Thursday Inspection',
-      template: this.state.allTemplates[0]
-    };
 
-    // Create temporary copy of all albums in state and push new album to it
-    let allAlbumsToSave = this.state.allAlbums;
-    allAlbumsToSave.push(testAlbum);
+    if (this.state.newAlbumName !== '' && this.state.newAlbumName.trim() !== "" && this.state.newAlbumTemplate !== undefined) {
 
-    try {
-      // Set state's allAlbums into storage, including the new one
-      await AsyncStorage.setItem('@storage_savedAlbums', JSON.stringify(allAlbumsToSave))
-      this.getSavedAlbums();
-    } catch (e) {
-      console.error(e);
+      const testAlbum = {
+        id: Date.now(),
+        name: this.state.newAlbumName,
+        template: this.state.allTemplates[this.state.newAlbumTemplate]
+      };
+  
+      // Create temporary copy of all albums in state and push new album to it
+      let allAlbumsToSave = this.state.allAlbums;
+      allAlbumsToSave.push(testAlbum);
+  
+      try {
+        // Set state's allAlbums into storage, including the new one
+        await AsyncStorage.setItem('@storage_savedAlbums', JSON.stringify(allAlbumsToSave))
+        this.getSavedAlbums();
+      } catch (e) {
+        console.error(e);
+      }
+    } else if (this.state.newAlbumName === '' && this.state.newAlbumTemplate === undefined) {
+      alert('Please fill in album name and pick a template.');
+    } else if (this.state.newAlbumName === '') {
+      alert('Please fill in album name.');
+    } else {
+      alert('Please choose a template. If none are available, create a new one on the Templates tab!');
     }
+    
+
+
   }
 
   deleteAllAlbumData = async () => {
@@ -146,6 +158,20 @@ export default class Albums extends React.Component {
     } catch (e) {
       console.error(e);
     }
+  }
+
+  handleNewAlbumName = (name) => {
+    this.setState({ newAlbumName: name });
+  }
+
+  handleNewAlbumTemplate = (index) => {
+    this.setState({ newAlbumTemplate: index });
+  }
+
+  closeNewAlbumModal = () => {
+    this.setState({
+      viewModal: false
+    })
   }
 
   render() {
@@ -159,8 +185,34 @@ export default class Albums extends React.Component {
             <Button title="Upload" onPress={() => this.uploadAlbumToDropbox(album.id, album.name)}></Button>
           </View>
         ))}
-        <Button title="Create Album" onPress={() => this.createAlbum()}/>
-        <Button title="DELETE ALL" onPress={() => this.deleteAllAlbumData()}/>
+        { this.state.viewModal && (
+          <View style={styles.modalContainer}>
+            <Modal animationType="slide">
+              <View style={styles.modalContent}>
+                <Text style={styles.modalHeading}>New Album</Text>
+                <TextInput
+                    style={styles.modalNewAlbumName}
+                    placeholder="Album Name"
+                    onChangeText={this.handleNewAlbumName}
+                    value={this.state.newAlbumName}
+                />
+                <Button title="Save Album" onPress={() => this.createAlbum()}/>
+                <Button
+                  title="Close"
+                  onPress={() => Alert.alert(
+                  'You sure?',
+                  'You will lose your current progress on this new album.',
+                  [
+                      {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                      {text: 'OK', onPress: this.closeModal}
+                  ]
+                  )}
+                />
+              </View>
+            </Modal>
+          </View>
+        )}
+        <Button title="Create New Album" onPress={() => this.setState({ viewModal: true })}/>
         <StatusBar style="auto" />
       </View>
     );
@@ -174,4 +226,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22
+  },
+  modalContent: {
+    marginTop: 60,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalHeading: {
+    fontSize: 28,
+    fontWeight: '600'
+  },
+  modalNewAlbumName: {
+    padding: 10,
+    fontSize: 26
+  }
 });

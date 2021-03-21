@@ -42,7 +42,7 @@ export default class SnapCamera extends React.Component {
         console.log(JSON.stringify(rows))
       );
       // DEV : Delete a row from photos table manually
-      //tx.executeSql('delete from photos where id = ?;', [7]);
+      //tx.executeSql('delete from photos where id = ?;', [1]);
     });
 
 
@@ -50,7 +50,7 @@ export default class SnapCamera extends React.Component {
     console.log(await FileSystem.readDirectoryAsync(FileSystem.documentDirectory + 'photos'))
 
     // DEV : Remove specific image from file system
-    //await FileSystem.deleteAsync(FileSystem.documentDirectory + 'photos' + '/1615066259890.jpg');
+    //await FileSystem.deleteAsync(FileSystem.documentDirectory + 'photos' + '/1615072344565.jpg');
 
   }
 
