@@ -140,6 +140,9 @@ export default class Albums extends React.Component {
       } catch (e) {
         console.error(e);
       }
+
+      this.closeNewAlbumModal();
+
     } else if (this.state.newAlbumName === '' && this.state.newAlbumTemplate === undefined) {
       alert('Please fill in album name and pick a template.');
     } else if (this.state.newAlbumName === '') {
@@ -170,6 +173,8 @@ export default class Albums extends React.Component {
 
   closeNewAlbumModal = () => {
     this.setState({
+      newAlbumName: '',
+      newAlbumTemplate: undefined,
       viewModal: false
     })
   }
@@ -204,7 +209,7 @@ export default class Albums extends React.Component {
                   'You will lose your current progress on this new album.',
                   [
                       {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                      {text: 'OK', onPress: this.closeModal}
+                      {text: 'OK', onPress: this.closeNewAlbumModal}
                   ]
                   )}
                 />
