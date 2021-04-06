@@ -1,7 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View, Button, Modal, TextInput, Alert} from 'react-native';
+import { StyleSheet, Text, View, Image, Button, Modal, TextInput, Alert} from 'react-native';
 import RNPickerSelect from "react-native-picker-select";
+import AlbumSingle from './components/AlbumSingle';
 
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -26,7 +27,7 @@ export default class Albums extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      viewModal: false,
+      viewCreateAlbumModal: false,
       photosFromDatabase: {},
       allTemplates: [],
       allAlbums: [],
@@ -51,7 +52,7 @@ export default class Albums extends React.Component {
         this.setState({
           photosFromDatabase: rows
         }, () => {
-          console.log(this.state.photosFromDatabase);
+          //console.log(this.state.photosFromDatabase);
           //console.log('Photos from SQLite loaded into state')
         })
       });
@@ -152,8 +153,6 @@ export default class Albums extends React.Component {
       alert('Please choose a template. If none are available, create a new one on the Templates tab!');
     }
     
-
-
   }
 
   // DEV only
@@ -179,7 +178,7 @@ export default class Albums extends React.Component {
     this.setState({
       newAlbumName: '',
       newAlbumTemplate: undefined,
-      viewModal: false
+      viewCreateAlbumModal: false
     })
   }
 
@@ -193,20 +192,20 @@ export default class Albums extends React.Component {
         {this.state.allAlbums.length > 0 && this.state.allAlbums.map((album, index) => (
           <View key={index}>
             <Text>{album.name} - {album.template.title}</Text>
-            <Text>id: {album.id}</Text>
+            <AlbumSingle allPhotos={this.state.photosFromDatabase} album={album}/>
             <Button title="Upload" onPress={() => this.uploadAlbumToDropbox(album.id, album.name)}></Button>
           </View>
         ))}
-        { this.state.viewModal && (
+        { this.state.viewCreateAlbumModal && (
           <View style={styles.modalContainer}>
             <Modal animationType="slide">
               <View style={styles.modalContent}>
                 <Text style={styles.modalHeading}>New Album</Text>
                 <TextInput
-                    style={styles.modalNewAlbumName}
-                    placeholder="Album Name"
-                    onChangeText={this.handleNewAlbumName}
-                    value={this.state.newAlbumName}
+                  style={styles.modalNewAlbumName}
+                  placeholder="Album Name"
+                  onChangeText={this.handleNewAlbumName}
+                  value={this.state.newAlbumName}
                 />
                 <RNPickerSelect
                  onValueChange={(value) => this.handleNewAlbumTemplate(value)}
@@ -228,7 +227,7 @@ export default class Albums extends React.Component {
             </Modal>
           </View>
         )}
-        <Button title="Create New Album" onPress={() => this.setState({ viewModal: true })}/>
+        <Button title="Create New Album" onPress={() => this.setState({ viewCreateAlbumModal: true })}/>
         <Button title="DELETE ALL ALBUMS" onPress={() => this.deleteAllAlbumData()}/>
         <StatusBar style="auto" />
       </View>
