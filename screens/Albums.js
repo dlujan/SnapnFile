@@ -188,13 +188,14 @@ export default class Albums extends React.Component {
     })
     return (
       <View style={styles.container}>
-        <Text>Albums</Text>
+        <Text style={styles.pageHeading}>Albums</Text>
         {this.state.allAlbums.length > 0 && this.state.allAlbums.map((album, index) => (
-          <View key={index}>
-            <Text>{album.name} - {album.template.title}</Text>
-            <AlbumSingle allPhotos={this.state.photosFromDatabase} album={album}/>
-            <Button title="Upload" onPress={() => this.uploadAlbumToDropbox(album.id, album.name)}></Button>
-          </View>
+          <AlbumSingle
+            allPhotos={this.state.photosFromDatabase._array}
+            album={album} 
+            key={index}
+            uploadAlbumToDropbox={this.uploadAlbumToDropbox}
+          />
         ))}
         { this.state.viewCreateAlbumModal && (
           <View style={styles.modalContainer}>
@@ -237,10 +238,14 @@ export default class Albums extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    marginTop: 60,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  pageHeading: {
+    fontSize: 30,
+    fontWeight: 'bold'
   },
   modalContainer: {
     flex: 1,
@@ -252,8 +257,7 @@ const styles = StyleSheet.create({
     marginTop: 60,
     backgroundColor: '#fff',
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: 'center'
   },
   modalHeading: {
     fontSize: 28,
