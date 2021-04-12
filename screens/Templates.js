@@ -72,48 +72,10 @@ export default class Templates extends React.Component {
         <Text style={styles.pageHeading}>Templates</Text>
         { this.renderSavedTemplates() }
         { this.state.viewModal && (
-        <TemplateNew
-          viewModal={this.state.viewModal}
-          closeModal={this.closeNewTemplateModal}
-        />
-          // <View style={styles.modalContainer}>
-          //   <Modal animationType="slide">
-          //     <View style={styles.modalContent}>
-          //       <Text style={styles.modalHeading}>New Template</Text>
-          //       <TextInput
-          //         style={styles.modalNewTemplateName}
-          //         placeholder="Template Name"
-          //         onChangeText={this.handleTemplateName}
-          //         value={this.state.newTemplateName}
-          //       />
-          //       <View style={styles.newFoldersList}>
-          //         {this.state.layerOne.length !== 0 && this.state.layerOne.map((folder, index) => (
-          //           <TextInput
-          //             style={styles.modalNewFolder}
-          //             key={index}
-          //             placeholder={`Folder ${index+1}`}
-          //             value={this.state.layerOne[index]}
-          //             onChange={(event) => this.handleFolderName(event, index)}
-          //           />
-          //         ))}
-          //         <View style={styles.addFolder}><Button title="Add Folder" onPress={() => this.addFolder()}/></View>
-          //       </View>
-          //       <Button title="Save Template" onPress={() => this.createTemplate()}/>
-          //       <Button
-          //         title="Close"
-          //         onPress={() => Alert.alert(
-          //           'You sure?',
-          //           'You will lose your current progress on this new template.',
-          //           [
-          //             {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-          //             {text: 'OK', onPress: this.closeModal}
-          //           ]
-          //         )}
-
-          //       />
-          //     </View>
-          //   </Modal>
-          // </View>
+          <TemplateNew
+            viewModal={this.state.viewModal}
+            closeModal={this.closeNewTemplateModal}
+          />
         )}
         <Button title="Create New Template" onPress={() => this.setState({ viewModal: true })}/>
         <StatusBar style="auto" />
