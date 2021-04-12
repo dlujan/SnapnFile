@@ -15,15 +15,15 @@ export default class AlbumSingle extends React.Component {
     render() {
         const { allPhotos, album } = this.props;
 
-        // Weird "undefined is not an object at allPhotos ["_array"].map" error
         if (this.props.allPhotos === undefined) return null;
 
-        const filteredPhotos = allPhotos.map(image => {
+        let filteredPhotos = [];
+        allPhotos.forEach(image => {
           if (image.album_id === album.id) {
-            return image;
+            filteredPhotos.push(image);
           }
         })
-        console.log(filteredPhotos)
+
         return (
             <View>
               <TouchableOpacity style={styles.loadedAlbumsSingle} onPress={() => this.setState({viewModal: true})}>
@@ -33,13 +33,24 @@ export default class AlbumSingle extends React.Component {
                 </View>
               </TouchableOpacity>
 
-              {this.state.viewModal && (
+              {this.state.viewModal && filteredPhotos.length > 0 && (
                 <View>
                   <Modal animationType="slide">
                     <TouchableOpacity style={styles.modalBackBtn} onPress={() => this.setState({viewModal: false})}>
                       <Text style={styles.modalBackText}>Back</Text>
                     </TouchableOpacity>
                     <GridImageView data={filteredPhotos} />
+                  </Modal>
+                </View>
+              )}
+
+              {this.state.viewModal && filteredPhotos.length === 0 && (
+                <View>
+                  <Modal animationType="slide">
+                    <TouchableOpacity style={styles.modalBackBtn} onPress={() => this.setState({viewModal: false})}>
+                      <Text style={styles.modalBackText}>Back</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.modalNoPhotosNotice}>No photos. Start snapping!</Text>
                   </Modal>
                 </View>
               )}
@@ -78,5 +89,9 @@ const styles = StyleSheet.create({
   modalBackText: {
     color: '#000',
     fontSize: 20
+  },
+  modalNoPhotosNotice: {
+    top: '50%',
+    left: '30%'
   }
 })
