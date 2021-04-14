@@ -29,7 +29,18 @@ export default class AlbumSingle extends React.Component {
               <TouchableOpacity style={styles.loadedAlbumsSingle} onPress={() => this.setState({viewModal: true})}>
                 <View style={styles.loadedAlbumRow}>
                   <Text style={styles.loadedAlbumTitle}>{album.name} - {album.template.title}</Text>
-                  <Button title="Upload" onPress={() => this.props.uploadAlbumToDropbox(album.id, album.name)}></Button>
+                  <Button title="Upload" onPress={() => this.props.uploadAlbumToDropbox(album.id, album.name)}/>
+                  <Button
+                    title="Delete"
+                    onPress={() => Alert.alert(
+                    'You sure?',
+                    'This album and all photos saved within it will be deleted forever.',
+                    [
+                        {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                        {text: 'OK', onPress: () => this.props.deleteAlbum(album.id)}
+                    ]
+                    )}
+                  />
                 </View>
               </TouchableOpacity>
 
