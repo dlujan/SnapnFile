@@ -41,6 +41,7 @@ export default class Albums extends React.Component {
     this.loadTemplatesFromFirebase();
     this.getSavedAlbums();
     this.fetchAndSetPhotosFromDB();
+    //this.deleteAlbum(1618187120142);
   }
 
   fetchAndSetPhotosFromDB = async () => {
@@ -112,7 +113,7 @@ export default class Albums extends React.Component {
   getSavedAlbums = async () => {
     try {
       const savedAlbums = await AsyncStorage.getItem('@storage_savedAlbums')
-      if(savedAlbums !== null) {
+      if (savedAlbums !== null) {
         // Replace current state (empty array) with new array coming in
         this.setState({ allAlbums: JSON.parse(savedAlbums) })
       }
@@ -155,13 +156,52 @@ export default class Albums extends React.Component {
     
   }
 
-  // DEV only
-  deleteAllAlbumData = async () => {
+  deleteAlbum = async (album_id) => {
+
+    // Delete album from SQL db and reset state
+    db.transaction(tx => {
+      tx.executeSql('select * from photos where album_id = ?;', [album_id], (_, { rows }) => {
+
+        // Delete all images from file store
+        if (rows._array.length > 0) this.deleteImageFiles(rows._array);
+      })
+      tx.executeSql('delete from photos where album_id = ?;', [album_id], () => {
+        console.log('All image data for this album deleted from local SQL database.')
+      });
+      tx.executeSql("select * from photos", [], (_, { rows }) => {
+        this.setState({
+          photosFromDatabase: rows
+        }, () => {
+          //console.log(this.state.photosFromDatabase);
+          //console.log('Photos from SQLite loaded into state')
+        })
+      });
+    });
+
+    // Delete from AsyncStorage
     try {
-      await AsyncStorage.removeItem('@storage_savedAlbums')
-    } catch (e) {
+      const savedAlbums = await AsyncStorage.getItem('@storage_savedAlbums');
+      if (savedAlbums !== null) {
+        const updatedAlbums = JSON.parse(savedAlbums).filter(album => album.id !== album_id);
+        try {
+          await AsyncStorage.setItem('@storage_savedAlbums', JSON.stringify(updatedAlbums));
+          this.setState({ allAlbums: updatedAlbums })
+          console.log('All album metadata successfully deleted from Async Storage.')
+        } catch(e) {
+          console.error(e);
+        }
+      }
+    } catch(e) {
       console.error(e);
     }
+  }
+
+  deleteImageFiles = async (images) => {
+    for (const image of images) {
+      let file = image.image_uri.split('/photos/')[1];
+      await FileSystem.deleteAsync(FileSystem.documentDirectory + 'photos' + `/${file}`);
+    }
+    console.log('All image files deleted from File System.')
   }
 
   handleNewAlbumName = (name) => {
@@ -186,6 +226,7 @@ export default class Albums extends React.Component {
     const templateOptions = this.state.allTemplates.map((template, index) => {
       return { label: template.title, value: index }
     })
+    console.log(this.state.allAlbums)
     return (
       <View style={styles.container}>
         <Text style={styles.pageHeading}>Albums</Text>
@@ -195,6 +236,7 @@ export default class Albums extends React.Component {
             album={album} 
             key={index}
             uploadAlbumToDropbox={this.uploadAlbumToDropbox}
+            deleteAlbum={this.deleteAlbum}
           />
         ))}
         { this.state.viewCreateAlbumModal && (
@@ -229,7 +271,6 @@ export default class Albums extends React.Component {
           </View>
         )}
         <Button title="Create New Album" onPress={() => this.setState({ viewCreateAlbumModal: true })}/>
-        <Button title="DELETE ALL ALBUMS" onPress={() => this.deleteAllAlbumData()}/>
         <StatusBar style="auto" />
       </View>
     );
