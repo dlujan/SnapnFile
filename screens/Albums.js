@@ -12,17 +12,6 @@ import { getUID, getDropboxToken } from '../util';
 
 const db = SQLite.openDatabase('photos.db');
 
-// @TODO ::
-
-// *** Each album will need to contain all photo information eventually, photos will be set to it in SnapCamera
-
-// 1. Load in user templates : DONE
-// 2. Create album - name and template, convert object -> string : DONE
-// 3. Save using Async Storage - test this with some random value first : DONE
-// 4. Save multiple albums to one large array, convert to string : DONE
-// 5. Figure out how to move albums (with connected templates) to the SnapCamera OH
-// ***** Just reuse my methods wherever I need the templates and albums - they either fetch directly from Firebase or Async Storage
-
 export default class Albums extends React.Component {
   constructor(props) {
     super(props);
