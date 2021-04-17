@@ -25,34 +25,6 @@ export default class TemplateSingle extends React.Component {
       console.error(e);
     }
   }
-  
-  // This function uses current state to create the template
-  createTemplate = async () => {
-    if (this.state.newTemplateName !== '' && this.state.layerOne.length !== 0) {
-      // Create a template format and save to database
-      const uid = await this.getUID();
-      let ref = firebase.database().ref('/users/' + uid);
-
-      // TODO: Decide on how many layers deep I wanna let the user create and figure out how to handle it
-      let newAlbumTemplate = {
-        title: this.state.newTemplateName,
-        folders: this.state.layerOne
-      }
-
-      ref.child("album_templates").push(newAlbumTemplate);
-
-      console.log('New template created')
-
-      this.closeModal();
-
-    } else if (this.state.newTemplateName === '' && this.state.layerOne.length === 0) {
-      alert('Please fill in template name and create at least one folder.');
-    } else if (this.state.newTemplateName === '') {
-      alert('Please fill in template name.');
-    } else {
-      alert('Please create at least one folder.');
-    }
-  }
 
   updateTemplate = async (index) => {
     // Check that new template name doesnt equal empty string or all spaces
