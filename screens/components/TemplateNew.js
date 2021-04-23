@@ -3,7 +3,10 @@ import { StyleSheet, Text, View, Modal, Button, TextInput, Alert} from 'react-na
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default class TemplateNew extends React.Component {
+import { connect } from 'react-redux';
+import { updateLastChange } from '../../actions/actions';
+
+class TemplateNew extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -38,6 +41,8 @@ export default class TemplateNew extends React.Component {
       }
 
       ref.child("album_templates").push(newAlbumTemplate);
+
+      this.props.updateLastChange('New template created.');
 
       this.closeModal();
 
@@ -153,3 +158,15 @@ const styles = StyleSheet.create({
     fontSize: 20
   }
 });
+
+const mapStateToProps = state => ({
+  lastChange: state.lastChange
+})
+
+const mapDispatchToProps = dispatch => ({
+  updateLastChange: message => {
+    dispatch(updateLastChange(message));
+  }
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(TemplateNew);

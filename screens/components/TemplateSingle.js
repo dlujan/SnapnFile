@@ -3,7 +3,10 @@ import { StyleSheet, Text, View, TouchableOpacity, Modal, Button, TextInput, Ale
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default class TemplateSingle extends React.Component {
+import { connect } from 'react-redux';
+import { updateLastChange } from '../../actions/actions';
+
+class TemplateSingle extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -23,34 +26,6 @@ export default class TemplateSingle extends React.Component {
       }
     } catch(e) {
       console.error(e);
-    }
-  }
-  
-  // This function uses current state to create the template
-  createTemplate = async () => {
-    if (this.state.newTemplateName !== '' && this.state.layerOne.length !== 0) {
-      // Create a template format and save to database
-      const uid = await this.getUID();
-      let ref = firebase.database().ref('/users/' + uid);
-
-      // TODO: Decide on how many layers deep I wanna let the user create and figure out how to handle it
-      let newAlbumTemplate = {
-        title: this.state.newTemplateName,
-        folders: this.state.layerOne
-      }
-
-      ref.child("album_templates").push(newAlbumTemplate);
-
-      console.log('New template created')
-
-      this.closeModal();
-
-    } else if (this.state.newTemplateName === '' && this.state.layerOne.length === 0) {
-      alert('Please fill in template name and create at least one folder.');
-    } else if (this.state.newTemplateName === '') {
-      alert('Please fill in template name.');
-    } else {
-      alert('Please create at least one folder.');
     }
   }
 
@@ -75,6 +50,7 @@ export default class TemplateSingle extends React.Component {
           if (templateToUpdate) {
             ref.child(templateToUpdate).set(updatedTemplate);
             console.log(`Template ${templateToUpdate} updated.`);
+            this.props.updateLastChange('Template updated.');
             this.closeModal();
           }
         }
@@ -97,6 +73,7 @@ export default class TemplateSingle extends React.Component {
         if (templateToDelete) {
           ref.child(templateToDelete).remove();
           console.log(`Template ${templateToDelete} deleted.`);
+          this.props.updateLastChange('Template deleted.');
         }
       }
     })
@@ -296,3 +273,15 @@ const styles = StyleSheet.create({
     fontSize: 20
   }
 });
+
+const mapStateToProps = state => ({
+  lastChange: state.lastChange
+})
+
+const mapDispatchToProps = dispatch => ({
+  updateLastChange: message => {
+    dispatch(updateLastChange(message));
+  }
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(TemplateSingle);
