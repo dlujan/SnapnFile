@@ -3,7 +3,10 @@ import { StyleSheet, Text, View, TouchableOpacity, Modal, Button, TextInput, Ale
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default class TemplateSingle extends React.Component {
+import { connect } from 'react-redux';
+import { updateLastChange } from '../../actions/actions';
+
+class TemplateSingle extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -47,6 +50,7 @@ export default class TemplateSingle extends React.Component {
           if (templateToUpdate) {
             ref.child(templateToUpdate).set(updatedTemplate);
             console.log(`Template ${templateToUpdate} updated.`);
+            this.props.updateLastChange('Template updated.');
             this.closeModal();
           }
         }
@@ -69,6 +73,7 @@ export default class TemplateSingle extends React.Component {
         if (templateToDelete) {
           ref.child(templateToDelete).remove();
           console.log(`Template ${templateToDelete} deleted.`);
+          this.props.updateLastChange('Template deleted.');
         }
       }
     })
@@ -268,3 +273,15 @@ const styles = StyleSheet.create({
     fontSize: 20
   }
 });
+
+const mapStateToProps = state => ({
+  lastChange: state.lastChange
+})
+
+const mapDispatchToProps = dispatch => ({
+  updateLastChange: message => {
+    dispatch(updateLastChange(message));
+  }
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(TemplateSingle);

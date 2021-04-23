@@ -4,6 +4,9 @@ import { StyleSheet, Text, View, Image, Button, Modal, TextInput, Alert} from 'r
 import RNPickerSelect from "react-native-picker-select";
 import AlbumSingle from './components/AlbumSingle';
 
+import { connect } from 'react-redux';
+import { updateLastChange } from '../actions/actions';
+
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
@@ -12,7 +15,7 @@ import { getUID, getDropboxToken } from '../util';
 
 const db = SQLite.openDatabase('photos.db');
 
-export default class Albums extends React.Component {
+class Albums extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -31,6 +34,12 @@ export default class Albums extends React.Component {
     this.getSavedAlbums();
     this.fetchAndSetPhotosFromDB();
     //this.deleteAlbum(1618187120142);
+  }
+
+  UNSAFE_componentWillReceiveProps() {
+    this.loadTemplatesFromFirebase();
+    this.getSavedAlbums();
+    this.fetchAndSetPhotosFromDB();
   }
 
   fetchAndSetPhotosFromDB = async () => {
@@ -105,6 +114,7 @@ export default class Albums extends React.Component {
       if (savedAlbums !== null) {
         // Replace current state (empty array) with new array coming in
         this.setState({ allAlbums: JSON.parse(savedAlbums) })
+        //console.log(savedAlbums)
       }
     } catch(e) {
       console.error(e);
@@ -132,6 +142,8 @@ export default class Albums extends React.Component {
       } catch (e) {
         console.error(e);
       }
+
+      this.props.updateLastChange('New album created.');
 
       this.closeNewAlbumModal();
 
@@ -163,6 +175,7 @@ export default class Albums extends React.Component {
         }, () => {
           //console.log(this.state.photosFromDatabase);
           //console.log('Photos from SQLite loaded into state')
+          this.props.updateLastChange('Album deleted.')
         })
       });
     });
@@ -172,12 +185,22 @@ export default class Albums extends React.Component {
       const savedAlbums = await AsyncStorage.getItem('@storage_savedAlbums');
       if (savedAlbums !== null) {
         const updatedAlbums = JSON.parse(savedAlbums).filter(album => album.id !== album_id);
-        try {
-          await AsyncStorage.setItem('@storage_savedAlbums', JSON.stringify(updatedAlbums));
-          this.setState({ allAlbums: updatedAlbums })
-          console.log('All album metadata successfully deleted from Async Storage.')
-        } catch(e) {
-          console.error(e);
+        if (updatedAlbums.length !== 0) {
+          try {
+            await AsyncStorage.setItem('@storage_savedAlbums', JSON.stringify(updatedAlbums));
+            this.setState({ allAlbums: updatedAlbums })
+            console.log('All album metadata successfully deleted from Async Storage. (new version of @storage_savedAlbums)')
+          } catch(e) {
+            console.error(e);
+          }
+        } else {
+          try {
+            await AsyncStorage.removeItem('@storage_savedAlbums');
+            this.setState({ allAlbums: [] })
+            console.log('All album metadata successfully deleted from Async Storage. (@storage_savedAlbums deleted)')
+          } catch(e) {
+            console.error(e);
+          }
         }
       }
     } catch(e) {
@@ -195,12 +218,10 @@ export default class Albums extends React.Component {
 
   handleNewAlbumName = (name) => {
     this.setState({ newAlbumName: name });
-    console.log(this.state.newAlbumName)
   }
 
   handleNewAlbumTemplate = (index) => {
     this.setState({ newAlbumTemplate: index });
-    console.log(this.state.newAlbumTemplate)
   }
 
   closeNewAlbumModal = () => {
@@ -215,7 +236,6 @@ export default class Albums extends React.Component {
     const templateOptions = this.state.allTemplates.map((template, index) => {
       return { label: template.title, value: index }
     })
-    console.log(this.state.allAlbums)
     return (
       <View style={styles.container}>
         <Text style={styles.pageHeading}>Albums</Text>
@@ -298,3 +318,15 @@ const styles = StyleSheet.create({
     fontSize: 26
   }
 });
+
+const mapStateToProps = state => ({
+  lastChange: state.lastChange
+})
+
+const mapDispatchToProps = dispatch => ({
+  updateLastChange: message => {
+    dispatch(updateLastChange(message));
+  }
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(Albums);

@@ -5,13 +5,16 @@ import * as Permissions from 'expo-permissions';
 import { FontAwesome, Ionicons,MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 
+import { connect } from 'react-redux';
+import { updateLastChange } from '../actions/actions';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
 import * as SQLite from 'expo-sqlite';
 
 const db = SQLite.openDatabase('photos.db');
 
-export default class SnapCamera extends React.Component {
+class SnapCamera extends React.Component {
   state = {
     hasPermission: null,
     cameraType: Camera.Constants.Type.back,
@@ -39,7 +42,8 @@ export default class SnapCamera extends React.Component {
         'CREATE TABLE if not exists photos (id integer primary key not null, album_id int, image_uri text, folder_name text);'
       );
       tx.executeSql("select * from photos", [], (_, { rows }) =>
-        console.log(JSON.stringify(rows))
+        //console.log(JSON.stringify(rows))
+        console.log('DB stuff loaded')
       );
       // DEV : Delete a row from photos table manually
       //tx.executeSql('delete from photos where id = ?;', [1]);
@@ -52,6 +56,11 @@ export default class SnapCamera extends React.Component {
     // DEV : Remove specific image from file system
     //await FileSystem.deleteAsync(FileSystem.documentDirectory + 'photos' + '/1615072344565.jpg');
 
+  }
+
+  UNSAFE_componentWillReceiveProps() {
+    console.log(`From snap camera: ${this.props}`)
+    this.getSavedAlbums();
   }
 
   getPermissionAsync = async () => {
@@ -70,15 +79,14 @@ export default class SnapCamera extends React.Component {
   getSavedAlbums = async () => {
     try {
       const savedAlbums = await AsyncStorage.getItem('@storage_savedAlbums')
-      console.log(`Saved albums: ${savedAlbums}`)
-      if (savedAlbums !== null && savedAlbums !== undefined && savedAlbums.length > 0) {
+      if (savedAlbums !== null && savedAlbums.length !== 0) {
         // Replace current state (empty array) with new array coming in
         this.setState({
           allAlbums: JSON.parse(savedAlbums),
           selectedAlbum: JSON.parse(savedAlbums)[0], // TEMPORARY :: SET DEFAULT SELECTED ALBUM TO FIRST IN LIST
           selectedFolder: JSON.parse(savedAlbums)[0].template.folders[0]
         })
-        console.log(this.state.selectedAlbum);
+        //console.log(this.state.selectedAlbum);
       }
     } catch(e) {
       console.error(e);
@@ -124,9 +132,12 @@ export default class SnapCamera extends React.Component {
         
       })
       .catch(error => { console.error(error) })
+
+      this.props.updateLastChange('A new picture was taken.')
     }
   }
 
+  // This might not be needed?? Better yet would be the ability to choose from phone's camera roll - but this is bonus
   pickImage = async () => {
     let photo = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images
@@ -339,3 +350,15 @@ const styles = StyleSheet.create({
     color: 'white'
   }
 });
+
+const mapStateToProps = state => ({
+  lastChange: state.lastChange
+})
+
+const mapDispatchToProps = dispatch => ({
+  updateLastChange: message => {
+    dispatch(updateLastChange(message));
+  }
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(SnapCamera);
