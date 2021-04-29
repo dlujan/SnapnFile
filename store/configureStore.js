@@ -1,14 +1,20 @@
-import { createStore, combineReducers } from 'redux';
+import { createStore, combineReducers, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
 
-// As in the reducer that handles major changes
-import changeReducer from '../reducers/reducer';
+import changeReducer from '../reducers/general';
+import uploadsReducer from '../reducers/uploads';
 
-const rootReducer = combineReducers(
-    { lastChange: changeReducer }
-);
+const middleware = [thunk];
+
+const rootReducer = combineReducers({
+    lastChange: changeReducer,
+    albumIsUploading: uploadsReducer,
+    uploadSuccess: uploadsReducer,
+    uploadMessage: uploadsReducer
+});
 
 const configureStore = () => {
-    return createStore(rootReducer);
+    return createStore(rootReducer, applyMiddleware(...middleware));
 }
 
 export default configureStore;

@@ -6,6 +6,8 @@ import AlbumSingle from './components/AlbumSingle';
 
 import { connect } from 'react-redux';
 import { updateLastChange } from '../actions/actions';
+import { albumStartedUploading } from '../actions/actions';
+import { albumStoppedUploading } from '../actions/actions';
 
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -24,7 +26,7 @@ class Albums extends React.Component {
       allTemplates: [],
       allAlbums: [],
       newAlbumName: '',
-      newAlbumTemplate: null // will be an int once chosen (0, 1, 2, etc.) - used as index when getting template from allTemplates
+      newAlbumTemplate: null, // will be an int once chosen (0, 1, 2, etc.) - used as index when getting template from allTemplates
     }
   }
 
@@ -51,7 +53,7 @@ class Albums extends React.Component {
         this.setState({
           photosFromDatabase: rows
         }, () => {
-          //console.log(this.state.photosFromDatabase);
+          console.log(this.state.photosFromDatabase);
           //console.log('Photos from SQLite loaded into state')
         })
       });
@@ -69,9 +71,11 @@ class Albums extends React.Component {
     if (filteredImages.length > 0) {
 
       console.log('Uploading images to Dropbox...');
+      this.props.albumStartedUploading('Uploading images to Dropbox...');
+
+      let uploadFailed = false;
 
       for (const image of filteredImages) {
-
         try {
           const response = await FileSystem.uploadAsync('https://content.dropboxapi.com/2/files/upload', image.image_uri, {
             headers: {
@@ -86,11 +90,20 @@ class Albums extends React.Component {
             }
           })
           console.log(response);
+          if (response.status === 401) {
+            uploadFailed = true;
+          }
         } catch (error) {
           console.error(error);
         }
       }
-      
+
+      if (uploadFailed === true) {
+        this.props.albumStoppedUploading({success: false, message: 'One or more photos failed to upload.'});
+      } else {
+        this.props.albumStoppedUploading({success: true, message: 'Album successfully uploaded to Dropbox!'});
+      }
+
     } else {
       console.log('Cant upload an empty album!');
     }
@@ -114,7 +127,7 @@ class Albums extends React.Component {
       if (savedAlbums !== null) {
         // Replace current state (empty array) with new array coming in
         this.setState({ allAlbums: JSON.parse(savedAlbums) })
-        //console.log(savedAlbums)
+        console.log(`Saved albums: ${savedAlbums}`)
       }
     } catch(e) {
       console.error(e);
@@ -233,6 +246,7 @@ class Albums extends React.Component {
   }
 
   render() {
+    console.log(this.props.uploadMessage)
     const templateOptions = this.state.allTemplates.map((template, index) => {
       return { label: template.title, value: index }
     })
@@ -280,6 +294,9 @@ class Albums extends React.Component {
           </View>
         )}
         <Button title="Create New Album" onPress={() => this.setState({ viewCreateAlbumModal: true })}/>
+        {this.props.uploadMessage.albumUploading && (<Text>Album uploading...</Text>)}
+        {!this.props.uploadMessage.albumUploading && this.props.uploadMessage.uploadSuccess && this.props.uploadMessage.uploadMessage !== '' && (<Text>{this.props.uploadMessage.uploadMessage}</Text>)}
+        {!this.props.uploadMessage.albumUploading && !this.props.uploadMessage.uploadSuccess && this.props.uploadMessage.uploadMessage !== '' && (<Text>{this.props.uploadMessage.uploadMessage}</Text>)}
         <StatusBar style="auto" />
       </View>
     );
@@ -320,13 +337,10 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = state => ({
-  lastChange: state.lastChange
+  lastChange: state.lastChange,
+  albumUploading: state.albumUploading,
+  uploadSuccess: state.uploadSuccess,
+  uploadMessage: state.uploadMessage
 })
 
-const mapDispatchToProps = dispatch => ({
-  updateLastChange: message => {
-    dispatch(updateLastChange(message));
-  }
-})
-
-export default connect(mapStateToProps, mapDispatchToProps)(Albums);
+export default connect(mapStateToProps, { updateLastChange, albumStartedUploading, albumStoppedUploading })(Albums);
