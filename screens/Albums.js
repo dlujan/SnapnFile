@@ -343,16 +343,4 @@ const mapStateToProps = state => ({
   uploadMessage: state.uploadMessage
 })
 
-const mapDispatchToProps = dispatch => ({
-  updateLastChange: message => {
-    dispatch(updateLastChange(message));
-  },
-  albumStartedUploading: message => {
-    dispatch(albumStartedUploading(message));
-  },
-  albumStoppedUploading: message => {
-    dispatch(albumStoppedUploading(message));
-  }
-})
-
-export default connect(mapStateToProps, mapDispatchToProps)(Albums);
+export default connect(mapStateToProps, { updateLastChange, albumStartedUploading, albumStoppedUploading })(Albums);

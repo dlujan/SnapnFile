@@ -1,5 +1,6 @@
 import { UPLOAD_INPROGRESS } from '../constants';
 import { UPLOAD_COMPLETE } from '../constants';
+import { REMOVE_UPLOAD_MESSAGE } from '../constants';
 
 const initialState = {
     albumUploading: false,
@@ -21,6 +22,12 @@ const uploadsReducer = (state = initialState, action) => {
                 albumUploading: false,
                 uploadSuccess: action.payload.success,
                 uploadMessage: action.payload.message
+            };
+        case REMOVE_UPLOAD_MESSAGE:
+            console.log(`From reducer: ${action.payload}`)
+            return {
+                ...state,
+                uploadMessage: action.payload
             };
         default:
             return state;

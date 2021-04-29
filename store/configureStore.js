@@ -1,7 +1,10 @@
-import { createStore, combineReducers } from 'redux';
+import { createStore, combineReducers, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
 
 import changeReducer from '../reducers/general';
 import uploadsReducer from '../reducers/uploads';
+
+const middleware = [thunk];
 
 const rootReducer = combineReducers({
     lastChange: changeReducer,
@@ -11,7 +14,7 @@ const rootReducer = combineReducers({
 });
 
 const configureStore = () => {
-    return createStore(rootReducer);
+    return createStore(rootReducer, applyMiddleware(...middleware));
 }
 
 export default configureStore;
