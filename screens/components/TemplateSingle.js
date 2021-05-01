@@ -30,6 +30,12 @@ class TemplateSingle extends React.Component {
   }
 
   updateTemplate = async (index) => {
+
+    if (this.state.layerOne.length <= 0) {
+      alert('You cannot save a template with no folders. Delete the template or add at least one folder.')
+      return;
+    }
+
     // Check that new template name doesnt equal empty string or all spaces
     const templateNameChanged = this.state.templateNewName !== '' && this.state.templateNewName.trim() !== '';
     const foldersChanged = this.compareArrays(this.state.layerOne, this.state.layerOneOriginal);
@@ -61,7 +67,7 @@ class TemplateSingle extends React.Component {
       alert('No changes detected.')
     }
   }
-  // TODO :: Make it so that user can delete folders, also in TemplateNew.js
+
   deleteTemplate = async (event, index) => {
     const uid = await this.getUID();
     let ref = firebase.database().ref('/users/' + uid).child("album_templates");
@@ -99,7 +105,9 @@ class TemplateSingle extends React.Component {
     })
   }
 
-  // TODO :: Delete folder
+  deleteFolder = (index) => {
+    this.setState({ layerOne: this.state.layerOne.filter((_, i) => i !== index) })
+  }
 
   openModal = () => {
     // When modal opens, populate the specific template component's state, using provided index
@@ -107,6 +115,9 @@ class TemplateSingle extends React.Component {
     const templateTitle = templates[template].title;
     const currentTemplate = templates[template].folders;
     
+    // DEV: Manually delete a template, second arg is the index of the one I want to delete
+    // if (currentTemplate === undefined) this.deleteTemplate(0, 3);
+
     const folderListCurrent = currentTemplate.map(folder => {
       return folder;
     })
@@ -185,13 +196,15 @@ class TemplateSingle extends React.Component {
                 />
                 <View style={styles.newFoldersList}>
                     {this.state.layerOne.length !== 0 && this.state.layerOne.map((name, index) => (
-                    <TextInput
+                    <View key={index} style={styles.modalNewFolderRow}>
+                      <TextInput
                         style={styles.modalNewFolder}
-                        key={index}
                         placeholder={`Folder ${index+1}`}
                         value={this.state.layerOne[index]}
                         onChange={(event) => this.handleFolderName(event, index)}
-                    />
+                      />
+                      <TouchableOpacity style={styles.modalFolderDelete} onPress={() => this.deleteFolder(index)}><Text>Delete</Text></TouchableOpacity>
+                    </View>
                     ))}
                     <View style={styles.addFolder}><Button title="Add Folder" onPress={() => this.addFolder()}/></View>
                 </View>
@@ -268,9 +281,20 @@ const styles = StyleSheet.create({
     padding: 10,
     fontSize: 26
   },
+  modalNewFolderRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 10
+  },
   modalNewFolder: {
-    padding: 10,
-    fontSize: 20
+    fontSize: 20,
+    width: '90%'
+  },
+  modalFolderDelete: {
+    width: '10%',
+    textAlign: 'center',
+    backgroundColor: 'red'
   }
 });
 

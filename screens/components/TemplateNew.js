@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Modal, Button, TextInput, Alert} from 'react-native';
+import { StyleSheet, Text, View, Modal, Button, TouchableOpacity, TextInput, Alert} from 'react-native';
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -75,6 +75,10 @@ class TemplateNew extends React.Component {
     })
   }
 
+  deleteFolder = (index) => {
+    this.setState({ layerOne: this.state.layerOne.filter((_, i) => i !== index) })
+  }
+
   closeModal = () => {
     this.setState({
       newTemplateName: '',
@@ -98,13 +102,15 @@ class TemplateNew extends React.Component {
                 />
                 <View style={styles.newFoldersList}>
                     {this.state.layerOne.length !== 0 && this.state.layerOne.map((folder, index) => (
-                    <TextInput
+                    <View key={index} style={styles.modalNewFolderRow}>
+                      <TextInput
                         style={styles.modalNewFolder}
-                        key={index}
                         placeholder={`Folder ${index+1}`}
                         value={this.state.layerOne[index]}
                         onChange={(event) => this.handleFolderName(event, index)}
-                    />
+                      />
+                      <TouchableOpacity style={styles.modalFolderDelete} onPress={() => this.deleteFolder(index)}><Text>Delete</Text></TouchableOpacity>
+                    </View>
                     ))}
                     <View style={styles.addFolder}><Button title="Add Folder" onPress={() => this.addFolder()}/></View>
                 </View>
@@ -153,9 +159,20 @@ const styles = StyleSheet.create({
     padding: 10,
     fontSize: 26
   },
+  modalNewFolderRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 10
+  },
   modalNewFolder: {
-    padding: 10,
+    width: '90%',
     fontSize: 20
+  },
+  modalFolderDelete: {
+    width: '10%',
+    textAlign: 'center',
+    backgroundColor: 'red'
   }
 });
 
