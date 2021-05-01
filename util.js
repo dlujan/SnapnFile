@@ -23,3 +23,7 @@ export const getUID = async () => {
       console.error(e);
     }
   }
+
+  export const checkIfDuplicateExists = (arr) => {
+    return new Set(arr).size !== arr.length;
+  }

@@ -6,6 +6,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { connect } from 'react-redux';
 import { updateLastChange } from '../../actions/actions';
 
+import { checkIfDuplicateExists } from '../../util';
+
 class TemplateNew extends React.Component {
   constructor(props) {
     super(props);
@@ -28,6 +30,12 @@ class TemplateNew extends React.Component {
   
   // This function uses current state to create the template
   createTemplate = async () => {
+
+    if (checkIfDuplicateExists(this.state.layerOne)) {
+      alert('Cannot have duplicate folder names.');
+      return;
+    }
+
     if (this.state.newTemplateName !== '' && this.state.newTemplateName.trim() !== "" && this.state.layerOne.length !== 0) {
       // Create a template format and save to database
       const uid = await this.getUID();

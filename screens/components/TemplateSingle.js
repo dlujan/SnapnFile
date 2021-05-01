@@ -6,6 +6,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { connect } from 'react-redux';
 import { updateLastChange } from '../../actions/actions';
 
+import { checkIfDuplicateExists } from '../../util';
+
 class TemplateSingle extends React.Component {
   constructor(props) {
     super(props);
@@ -32,6 +34,11 @@ class TemplateSingle extends React.Component {
 
     if (this.state.layerOne.length <= 0) {
       alert('You cannot save a template with no folders. Delete the template or add at least one folder.')
+      return;
+    }
+
+    if (checkIfDuplicateExists(this.state.layerOne)) {
+      alert('Cannot have duplicate folder names.');
       return;
     }
 
