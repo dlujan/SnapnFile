@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Modal, Button, TextInput, Alert} from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Modal, Button, TextInput, Alert, ScrollView} from 'react-native';
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -44,9 +44,17 @@ class TemplateSingle extends React.Component {
       const uid = await this.getUID();
       let ref = firebase.database().ref('/users/' + uid).child("album_templates");
 
+      // Bc slashes mess things up when uploading to Dropbox
+      const filteredForSlashes = this.state.layerOne.map(folder => {
+        if (folder.includes("/")) {
+          return folder.replace("/", "-");
+        } else {
+          return folder;
+        }
+      })
       let updatedTemplate = {
         title: templateNameChanged ? this.state.templateNewName : this.state.templateCurrentName,
-        folders: this.state.layerOne
+        folders: filteredForSlashes
       }
       
       ref.once('value').then(snapshot => {
@@ -99,9 +107,15 @@ class TemplateSingle extends React.Component {
   }
 
   addFolder = () => {
+
+    if (this.state.layerOne.length >= 20) {
+      alert('Folder limit reached')
+      return;
+    }
+
     const defaultName = this.state.layerOne.length;
     this.setState({ 
-      layerOne: [...this.state.layerOne, `Folder ${defaultName + 1}`]
+      layerOne: [...this.state.layerOne, `Folder${defaultName + 1}`]
     })
   }
 
@@ -194,7 +208,7 @@ class TemplateSingle extends React.Component {
                     onChangeText={this.handleTemplateName}
                     value={this.state.templateNewName}
                 />
-                <View style={styles.newFoldersList}>
+                <ScrollView style={styles.newFoldersList}>
                     {this.state.layerOne.length !== 0 && this.state.layerOne.map((name, index) => (
                     <View key={index} style={styles.modalNewFolderRow}>
                       <TextInput
@@ -206,8 +220,8 @@ class TemplateSingle extends React.Component {
                       <TouchableOpacity style={styles.modalFolderDelete} onPress={() => this.deleteFolder(index)}><Text>Delete</Text></TouchableOpacity>
                     </View>
                     ))}
-                    <View style={styles.addFolder}><Button title="Add Folder" onPress={() => this.addFolder()}/></View>
-                </View>
+                </ScrollView>
+                <Button title="Add Folder" onPress={() => this.addFolder()}/>
                 <Button title="Save Changes" onPress={() => this.updateTemplate(index)}/>
                 <Button
                     title="Close"
@@ -275,7 +289,8 @@ const styles = StyleSheet.create({
   },
   newFoldersList: {
     backgroundColor: '#f7f7f7',
-    width: '90%'
+    width: '90%',
+    maxHeight: '60%'
   },
   modalNewTemplateName: {
     padding: 10,
@@ -289,7 +304,7 @@ const styles = StyleSheet.create({
   },
   modalNewFolder: {
     fontSize: 20,
-    width: '90%'
+    width: '70%'
   },
   modalFolderDelete: {
     width: '10%',
