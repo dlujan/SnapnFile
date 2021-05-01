@@ -13,8 +13,7 @@ class TemplateSingle extends React.Component {
       viewModal: false,
       templateNewName: '',
       layerOne: [],
-      layerOneOriginal: [],
-      layerTwo: []
+      layerOneOriginal: []
     }
   }
 
@@ -44,17 +43,9 @@ class TemplateSingle extends React.Component {
       const uid = await this.getUID();
       let ref = firebase.database().ref('/users/' + uid).child("album_templates");
 
-      // Bc slashes mess things up when uploading to Dropbox
-      const filteredForSlashes = this.state.layerOne.map(folder => {
-        if (folder.includes("/")) {
-          return folder.replace("/", "-");
-        } else {
-          return folder;
-        }
-      })
       let updatedTemplate = {
         title: templateNameChanged ? this.state.templateNewName : this.state.templateCurrentName,
-        folders: filteredForSlashes
+        folders: this.state.layerOne
       }
       
       ref.once('value').then(snapshot => {

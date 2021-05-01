@@ -87,7 +87,7 @@ class Albums extends React.Component {
               "Authorization": `Bearer ${token}`,
               "Content-Type": "application/octet-stream",
               "Dropbox-API-Arg": JSON.stringify({
-                "path": `/${albumName}/${image.folder_name}/${image.folder_name}.jpg`,
+                "path": `/${albumName}/${image.folder_name}/${image.folder_name.replaceAll("/", "-")}.jpg`,
                 "mode": "add",
                 "autorename": true,
                 "mute": false

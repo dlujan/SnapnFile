@@ -11,8 +11,7 @@ class TemplateNew extends React.Component {
     super(props);
     this.state = {
       newTemplateName: '',
-      layerOne: [],
-      layerTwo: []
+      layerOne: []
     }
   }
 
@@ -34,17 +33,9 @@ class TemplateNew extends React.Component {
       const uid = await this.getUID();
       let ref = firebase.database().ref('/users/' + uid);
 
-      // Bc slashes mess things up when uploading to Dropbox
-      const filteredForSlashes = this.state.layerOne.map(folder => {
-        if (folder.includes("/")) {
-          return folder.replace("/", "-");
-        } else {
-          return folder;
-        }
-      })
       let newAlbumTemplate = {
         title: this.state.newTemplateName,
-        folders: filteredForSlashes
+        folders: this.state.layerOne
       }
 
       ref.child("album_templates").push(newAlbumTemplate);
