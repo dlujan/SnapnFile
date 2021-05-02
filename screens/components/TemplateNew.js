@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   newFoldersList: {
     backgroundColor: '#f7f7f7',
     width: '90%',
-    maxHeight: '60%'
+    maxHeight: '41%'
   },
   modalNewTemplateName: {
     padding: 10,
