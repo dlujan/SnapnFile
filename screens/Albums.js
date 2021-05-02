@@ -26,7 +26,7 @@ class Albums extends React.Component {
       allTemplates: [],
       allAlbums: [],
       newAlbumName: '',
-      newAlbumTemplate: null, // will be an int once chosen (0, 1, 2, etc.) - used as index when getting template from allTemplates
+      newAlbumTemplate: null // will be an int once chosen (0, 1, 2, etc.) - used as index when getting template from allTemplates
     }
   }
 
@@ -62,11 +62,16 @@ class Albums extends React.Component {
 
   // ***** MUST PROMPT USER TO CONNECT TO DROPBOX TO GET TOKEN
   uploadAlbumToDropbox = async (id, albumName) => {
+
+    const token = await getDropboxToken();
+    if (token === undefined) {
+      alert('Please sign in to Dropbox first.')
+      return;
+    }
+
     console.log(`Filter for images with id: ${id}`);
     const imagesArray = this.state.photosFromDatabase._array;
     const filteredImages = imagesArray.filter(photo => photo.album_id === id);
-
-    const token = await getDropboxToken();
 
     if (filteredImages.length > 0) {
 
@@ -82,7 +87,7 @@ class Albums extends React.Component {
               "Authorization": `Bearer ${token}`,
               "Content-Type": "application/octet-stream",
               "Dropbox-API-Arg": JSON.stringify({
-                "path": `/${albumName}/${image.folder_name}/${image.folder_name}.jpg`,
+                "path": `/${albumName}/${image.folder_name}/${image.folder_name.replaceAll("/", "-")}.jpg`,
                 "mode": "add",
                 "autorename": true,
                 "mute": false
@@ -246,7 +251,6 @@ class Albums extends React.Component {
   }
 
   render() {
-    console.log(this.props.uploadMessage)
     const templateOptions = this.state.allTemplates.map((template, index) => {
       return { label: template.title, value: index }
     })
