@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View ,TouchableOpacity, Platform, Image, FlatList} from 'react-native';
 import { Camera } from 'expo-camera';
 import * as Permissions from 'expo-permissions';
-import { FontAwesome, Ionicons,MaterialCommunityIcons } from '@expo/vector-icons';
+import { FontAwesome, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 
 import { connect } from 'react-redux';
@@ -24,7 +24,6 @@ class SnapCamera extends React.Component {
     allAlbums: [],
     selectedAlbum: {},
     selectedFolder: '',
-
     testUri: ''
   }
 
@@ -97,9 +96,8 @@ class SnapCamera extends React.Component {
     if (this.camera) {
       let photo = await this.camera.takePictureAsync();
 
-      // ***** Just for testing
+      // ***** Show the new image in the top right thumbnail
       this.setState({ testUri: photo.uri })
-      // ***** Just for testing
 
       // Check if user photo directory exists, if not, create it
       const USER_PHOTO_DIR = FileSystem.documentDirectory + 'photos';
@@ -137,12 +135,46 @@ class SnapCamera extends React.Component {
     }
   }
 
-  // This might not be needed?? Better yet would be the ability to choose from phone's camera roll - but this is bonus
   pickImage = async () => {
-    let photo = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images
-    });
-    console.log(photo);
+    if (this.camera) {
+      let photo = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images
+      });
+
+      this.setState({ testUri: photo.uri })
+
+      const USER_PHOTO_DIR = FileSystem.documentDirectory + 'photos';
+      const folderInfo = await FileSystem.getInfoAsync(USER_PHOTO_DIR);
+      if (!folderInfo.exists) {
+        await FileSystem.makeDirectoryAsync(USER_PHOTO_DIR);
+      }
+
+      const imageName = `${Date.now()}.jpg`;
+      const NEW_PHOTO_URI = `${USER_PHOTO_DIR}/${imageName}`;
+
+      await FileSystem.copyAsync({
+        from: photo.uri,
+        to: NEW_PHOTO_URI
+      })
+      .then(() => {
+        console.log(`File ${photo.uri} was saved as ${NEW_PHOTO_URI}`)
+
+        // Store image info inside database - store the file system image uri, album id, and folder name
+        db.transaction(tx => {
+          tx.executeSql('insert into photos (album_id, image_uri, folder_name) values (?,?,?)',
+            [this.state.selectedAlbum.id, NEW_PHOTO_URI, this.state.selectedFolder],
+            () => console.log('Image added to database...')
+          );
+          tx.executeSql('select * from photos', [], (_, { rows }) =>
+            console.log(JSON.stringify(rows))
+          );
+        })
+        
+      })
+      .catch(error => { console.error(error) })
+
+      this.props.updateLastChange('Image from device was saved to album.')
+    }
   }
 
   handleCameraType=()=>{
