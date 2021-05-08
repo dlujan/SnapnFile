@@ -4,6 +4,7 @@ import { Camera } from 'expo-camera';
 import * as Permissions from 'expo-permissions';
 import { FontAwesome, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import Slider from '@react-native-community/slider';
 
 import { connect } from 'react-redux';
 import { updateLastChange } from '../actions/actions';
@@ -291,6 +292,15 @@ class SnapCamera extends React.Component {
               zoom={this.state.cameraZoom}
               ref={ref => {this.camera = ref}}
             >
+
+              <Slider
+                style={{width: 250, height: 40}}
+                minimumValue={0}
+                maximumValue={1}
+                minimumTrackTintColor="#FFFFFF"
+                maximumTrackTintColor="#000000"
+                onValueChange={(event) => this.setState({cameraZoom: event})}
+              />
 
               {this.state.allAlbums.length !== 0 && (
                 <View style={styles.folderListContainer}>
