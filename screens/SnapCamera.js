@@ -294,7 +294,7 @@ class SnapCamera extends React.Component {
             >
 
               <Slider
-                style={{width: 250, height: 40}}
+                style={{width: '80%', height: 40, marginLeft: '10%'}}
                 minimumValue={0}
                 maximumValue={1}
                 minimumTrackTintColor="#FFFFFF"
