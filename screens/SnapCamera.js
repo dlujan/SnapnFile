@@ -78,11 +78,11 @@ class SnapCamera extends React.Component {
   getSavedAlbums = async () => {
     try {
       const savedAlbums = await AsyncStorage.getItem('@storage_savedAlbums')
-      if (savedAlbums !== null && savedAlbums.length !== 0) {
+      if (savedAlbums !== null && savedAlbums.length !== 0 && Object.keys(this.state.selectedAlbum).length === 0) {
         // Replace current state (empty array) with new array coming in
         this.setState({
           allAlbums: JSON.parse(savedAlbums),
-          selectedAlbum: JSON.parse(savedAlbums)[0], // TEMPORARY :: SET DEFAULT SELECTED ALBUM TO FIRST IN LIST
+          selectedAlbum: JSON.parse(savedAlbums)[0],
           selectedFolder: JSON.parse(savedAlbums)[0].template.folders[0]
         })
         //console.log(this.state.selectedAlbum);
@@ -140,6 +140,7 @@ class SnapCamera extends React.Component {
       let photo = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images
       });
+      if (photo.cancelled) return;
 
       this.setState({ testUri: photo.uri })
 
@@ -177,7 +178,7 @@ class SnapCamera extends React.Component {
     }
   }
 
-  handleCameraType=()=>{
+  handleCameraType = () => {
     const { cameraType } = this.state;
 
     this.setState({cameraType:
@@ -283,10 +284,16 @@ class SnapCamera extends React.Component {
               />
 
             </View>
-            <Camera style={{ flex: 1 }} type={this.state.cameraType} flashMode={this.state.cameraFlash} ref={ref => {this.camera = ref}}>
+            <Camera
+              style={styles.camera}
+              type={this.state.cameraType}
+              flashMode={this.state.cameraFlash}
+              zoom={this.state.cameraZoom}
+              ref={ref => {this.camera = ref}}
+            >
 
               {this.state.allAlbums.length !== 0 && (
-                <View style={styles.flatListContainer}>
+                <View style={styles.folderListContainer}>
                   <FlatList
                     ref={(ref) => {this.flatListRef = ref;}}
                     showsHorizontalScrollIndicator={false}
@@ -302,7 +309,7 @@ class SnapCamera extends React.Component {
                     }}
                     renderItem={({ item, index }) => {
                       return (
-                        <TouchableOpacity style={styles.flatListItem} onPress={() => this.scrollToFolder(index)}>
+                        <TouchableOpacity style={styles.folderItem} onPress={() => this.scrollToFolder(index)}>
                           <Text style={styles.folderText}>{this.state.selectedAlbum.template.folders[index]}</Text>
                         </TouchableOpacity>
                       )
@@ -312,7 +319,7 @@ class SnapCamera extends React.Component {
                 </View>
 
               )}
-              <View style={{flex:1, flexDirection:"row",justifyContent:"space-between",margin:30}}>
+              <View style={styles.cameraButtons}>
                 <TouchableOpacity
                   style={{
                     alignSelf: 'flex-end',
@@ -370,16 +377,28 @@ const styles = StyleSheet.create({
   albumMenu: {
     top: 0,
   },
-  flatListContainer: {
-    marginTop: '125%'
+  camera: {
+    height: '100%',
+    paddingBottom: '40%',
+    justifyContent: 'flex-end'
   },
-  flatListItem: {
+  folderListContainer: {
+    marginBottom: 30
+  },
+  folderItem: {
     backgroundColor: '#b55f19',
     padding: 10,
     marginHorizontal: 16
   },
   folderText: {
     color: 'white'
+  },
+  cameraButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    width: '80%'
   }
 });
 
