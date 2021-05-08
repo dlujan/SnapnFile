@@ -60,6 +60,31 @@ class Albums extends React.Component {
     });
   }
 
+  // @TODO: Consider moving these methods into util.js
+  loadTemplatesFromFirebase = async () => {
+    const uid = await getUID();
+    let ref = firebase.database().ref('users/' + uid).child("album_templates");
+    ref.once('value').then(snapshot => {
+      let templates = snapshot.val();
+      if (templates !== null) {
+        this.setState({ allTemplates: Object.values(templates) });
+      }
+    })
+  }
+
+  getSavedAlbums = async () => {
+    try {
+      const savedAlbums = await AsyncStorage.getItem('@storage_savedAlbums')
+      if (savedAlbums !== null) {
+        // Replace current state (empty array) with new array coming in
+        this.setState({ allAlbums: JSON.parse(savedAlbums) })
+        console.log(`Saved albums: ${savedAlbums}`)
+      }
+    } catch(e) {
+      console.error(e);
+    }
+  }
+
   // ***** MUST PROMPT USER TO CONNECT TO DROPBOX TO GET TOKEN
   uploadAlbumToDropbox = async (id, albumName) => {
 
@@ -111,31 +136,6 @@ class Albums extends React.Component {
 
     } else {
       console.log('Cant upload an empty album!');
-    }
-  }
-
-  // @TODO: Consider moving these methods into util.js
-  loadTemplatesFromFirebase = async () => {
-    const uid = await getUID();
-    let ref = firebase.database().ref('users/' + uid).child("album_templates");
-    ref.once('value').then(snapshot => {
-      let templates = snapshot.val();
-      if (templates !== null) {
-        this.setState({ allTemplates: Object.values(templates) });
-      }
-    })
-  }
-
-  getSavedAlbums = async () => {
-    try {
-      const savedAlbums = await AsyncStorage.getItem('@storage_savedAlbums')
-      if (savedAlbums !== null) {
-        // Replace current state (empty array) with new array coming in
-        this.setState({ allAlbums: JSON.parse(savedAlbums) })
-        console.log(`Saved albums: ${savedAlbums}`)
-      }
-    } catch(e) {
-      console.error(e);
     }
   }
 
