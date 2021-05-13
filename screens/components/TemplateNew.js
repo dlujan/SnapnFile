@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, Modal, Button, TouchableOpacity, TextInput, Alert, ScrollView} from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -102,43 +103,51 @@ class TemplateNew extends React.Component {
 
   render() {
     return (
-        <View style={styles.modalContainer}>
-            <Modal animationType="slide">
-                <View style={styles.modalContent}>
-                <Text style={styles.modalHeading}>New Template</Text>
-                <TextInput
-                    style={styles.modalNewTemplateName}
-                    placeholder="Template Name"
-                    onChangeText={this.handleTemplateName}
-                    value={this.state.newTemplateName}
-                />
-                <ScrollView style={styles.newFoldersList}>
-                    {this.state.layerOne.length !== 0 && this.state.layerOne.map((folder, index) => (
-                    <View key={index} style={styles.modalNewFolderRow}>
-                      <TextInput
-                        style={styles.modalNewFolder}
-                        placeholder={`Folder ${index+1}`}
-                        value={this.state.layerOne[index]}
-                        onChange={(event) => this.handleFolderName(event, index)}
-                      />
-                      <TouchableOpacity style={styles.modalFolderDelete} onPress={() => this.deleteFolder(index)}><Text>Delete</Text></TouchableOpacity>
-                    </View>
-                    ))}
+        <View>
+          <Modal animationType="slide">
+              <View style={styles.modalContent}>
+              <Text style={styles.modalHeading}>New Template</Text>
+              <TextInput
+                  style={styles.modalNewTemplateName}
+                  placeholder="Template Name"
+                  onChangeText={this.handleTemplateName}
+                  value={this.state.newTemplateName}
+                  returnKeyType="done"
+              />
+
+              <View style={styles.newFoldersList}>
+                <ScrollView>
+                  {this.state.layerOne.length !== 0 && this.state.layerOne.map((folder, index) => (
+                  <View key={index} style={styles.modalNewFolderRow}>
+                    <TextInput
+                      style={styles.modalNewFolder}
+                      placeholder={`Folder ${index+1}`}
+                      value={this.state.layerOne[index]}
+                      onChange={(event) => this.handleFolderName(event, index)}
+                      returnKeyType="done"
+                    />
+                    <TouchableOpacity style={styles.modalFolderDelete} onPress={() => this.deleteFolder(index)}>
+                      <FontAwesome name="minus-circle" style={{ color: "red", fontSize: 20}}/>
+                    </TouchableOpacity>
+                  </View>
+                  ))}
                 </ScrollView>
-                <Button title="Add Folder" onPress={() => this.addFolder()}/>
-                <Button title="Save Template" onPress={() => this.createTemplate()}/>
-                <Button
-                    title="Close"
-                    onPress={() => Alert.alert(
-                    'You sure?',
-                    'You will lose your current progress on this new template.',
-                    [
-                        {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                        {text: 'OK', onPress: this.closeModal}
-                    ]
-                    )}
-                />
-                </View>
+              </View>
+
+              <Button title="Add Folder" onPress={() => this.addFolder()}/>
+              <Button title="Save Template" onPress={() => this.createTemplate()}/>
+              <Button
+                  title="Close"
+                  onPress={() => Alert.alert(
+                  'You sure?',
+                  'You will lose your current progress on this new template.',
+                  [
+                      {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                      {text: 'OK', onPress: this.closeModal}
+                  ]
+                  )}
+              />
+              </View>
             </Modal>
         </View>
     );
@@ -147,45 +156,46 @@ class TemplateNew extends React.Component {
 
 const styles = StyleSheet.create({
   // New Template Modal
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22
-  },
   modalContent: {
-    marginTop: 60,
+    paddingTop: 100,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    height: '100%'
   },
   modalHeading: {
-    fontSize: 28,
-    fontWeight: '600'
+    fontSize: 30,
+    fontWeight: 'bold',
+    alignSelf: 'flex-start',
+    marginLeft: 20,
+    marginBottom: 10,
+  },
+  modalNewTemplateName: {
+    padding: 5,
+    paddingLeft: 20,
+    marginBottom: 10,
+    fontSize: 26,
   },
   newFoldersList: {
     backgroundColor: '#f7f7f7',
-    width: '90%',
+    marginLeft: 10,
+    marginRight: 10,
+    width: '100%',
     maxHeight: '41%'
-  },
-  modalNewTemplateName: {
-    padding: 10,
-    fontSize: 26
   },
   modalNewFolderRow: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 10
+    padding: 10,
+    borderBottomColor: '#E8E9EB',
+    borderBottomWidth: 1
   },
   modalNewFolder: {
-    width: '70%',
-    fontSize: 20
+    fontSize: 20,
+    width: '80%'
   },
   modalFolderDelete: {
-    width: '10%',
-    textAlign: 'center',
-    backgroundColor: 'red'
+    padding: 15
   }
 });
 

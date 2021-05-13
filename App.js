@@ -41,9 +41,6 @@ export default function App() {
           <Screen name="Login" component={Login} />
           <Screen name="Signup" component={Signup} />
           <Screen name="MainTabNavigator" component={MainTabNavigator} />
-          {/* <Screen name="Albums" component={Albums} />
-          <Screen name="Templates" component={Templates} />
-          <Screen name="Account" component={Account} /> */}
         </Navigator>
       </NavigationContainer>
     </Provider>

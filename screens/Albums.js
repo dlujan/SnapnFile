@@ -309,14 +309,17 @@ class Albums extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 60,
+    paddingTop: 100,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    height: '100%'
   },
   pageHeading: {
     fontSize: 30,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    alignSelf: 'flex-start',
+    marginLeft: 20,
+    marginBottom: 10,
   },
   modalContainer: {
     flex: 1,
