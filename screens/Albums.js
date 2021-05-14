@@ -135,7 +135,7 @@ class Albums extends React.Component {
       }
 
     } else {
-      console.log('Cant upload an empty album!');
+      alert('Cant upload an empty album! Take some pictures.');
     }
   }
 
@@ -308,9 +308,12 @@ class Albums extends React.Component {
           </View>
         )}
         <Button title="Create New Album" onPress={() => this.setState({ viewCreateAlbumModal: true })}/>
-        {this.props.uploadMessage.albumUploading && (<Text>Album uploading...</Text>)}
-        {!this.props.uploadMessage.albumUploading && this.props.uploadMessage.uploadSuccess && this.props.uploadMessage.uploadMessage !== '' && (<Text>{this.props.uploadMessage.uploadMessage}</Text>)}
-        {!this.props.uploadMessage.albumUploading && !this.props.uploadMessage.uploadSuccess && this.props.uploadMessage.uploadMessage !== '' && (<Text>{this.props.uploadMessage.uploadMessage}</Text>)}
+        <View style={styles.uploadAlerts}>
+          {this.props.uploadMessage.albumUploading && (<Text>Album uploading...</Text>)}
+          {!this.props.uploadMessage.albumUploading && this.props.uploadMessage.uploadSuccess && this.props.uploadMessage.uploadMessage !== '' && (<Text>{this.props.uploadMessage.uploadMessage}</Text>)}
+          {!this.props.uploadMessage.albumUploading && !this.props.uploadMessage.uploadSuccess && this.props.uploadMessage.uploadMessage !== '' && (<Text>{this.props.uploadMessage.uploadMessage}</Text>)}
+        </View>
+        
         <StatusBar style="auto" />
       </View>
     );
@@ -358,6 +361,9 @@ const styles = StyleSheet.create({
     borderColor: 'gray',
     borderRadius: 4,
     color: 'black',
+  },
+  uploadAlerts: {
+    alignItems: 'center'
   }
 });
 
