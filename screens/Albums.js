@@ -254,6 +254,11 @@ class Albums extends React.Component {
     const templateOptions = this.state.allTemplates.map((template, index) => {
       return { label: template.title, value: index }
     })
+
+    const placeholder = {
+      label: 'Select a template...',
+      value: null
+    }
     return (
       <View style={styles.container}>
         <Text style={styles.pageHeading}>Albums</Text>
@@ -276,11 +281,16 @@ class Albums extends React.Component {
                   placeholder="Album Name"
                   onChangeText={this.handleNewAlbumName}
                   value={this.state.newAlbumName}
+                  returnKeyType="done"
                 />
-                <RNPickerSelect
-                 onValueChange={(value) => this.handleNewAlbumTemplate(value)}
-                 items={templateOptions}
-                />
+                <View>
+                  <RNPickerSelect
+                    style={modalPicker}
+                    placeholder={placeholder}
+                    onValueChange={(value) => this.handleNewAlbumTemplate(value)}
+                    items={templateOptions}
+                  />
+                </View>
                 <Button title="Save Album" onPress={() => this.createAlbum()}/>
                 <Button
                   title="Close"
@@ -321,27 +331,56 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     marginBottom: 10,
   },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22
-  },
+  // New Album modal
   modalContent: {
-    marginTop: 60,
+    paddingTop: 100,
     backgroundColor: '#fff',
-    flex: 1,
-    alignItems: 'center'
+    justifyContent: 'flex-start',
+    height: '100%'
   },
   modalHeading: {
-    fontSize: 28,
-    fontWeight: '600'
+    fontSize: 30,
+    fontWeight: 'bold',
+    alignSelf: 'center',
+    marginBottom: 10,
   },
   modalNewAlbumName: {
-    padding: 10,
-    fontSize: 26
+    padding: 5,
+    marginBottom: 10,
+    fontSize: 26,
+    alignSelf: 'center',
+  },
+  modalPicker: {
+    fontSize: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: 'gray',
+    borderRadius: 4,
+    color: 'black',
   }
 });
+
+const modalPicker = StyleSheet.create({
+  inputIOS: {
+    fontSize: 16,
+    textAlign: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: '#E0DFD5',
+    color: 'black',
+  },
+  inputAndroid: {
+    fontSize: 16,
+    textAlign: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: '#E0DFD5',
+    color: 'black',
+  }
+})
 
 const mapStateToProps = state => ({
   lastChange: state.lastChange,

@@ -165,15 +165,14 @@ const styles = StyleSheet.create({
   modalHeading: {
     fontSize: 30,
     fontWeight: 'bold',
-    alignSelf: 'flex-start',
-    marginLeft: 20,
+    alignSelf: 'center',
     marginBottom: 10,
   },
   modalNewTemplateName: {
     padding: 5,
-    paddingLeft: 20,
     marginBottom: 10,
     fontSize: 26,
+    alignSelf: 'center',
   },
   newFoldersList: {
     backgroundColor: '#f7f7f7',
