@@ -301,7 +301,8 @@ class SnapCamera extends React.Component {
                 maximumTrackTintColor="#000000"
                 onValueChange={(event) => this.setState({cameraZoom: event})}
               />
-
+            </Camera>
+            <View>
               {this.state.allAlbums.length !== 0 && (
                 <View style={styles.folderListContainer}>
                   <FlatList
@@ -327,49 +328,36 @@ class SnapCamera extends React.Component {
                   >
                   </FlatList>
                 </View>
-
               )}
               <View style={styles.cameraButtons}>
                 <TouchableOpacity
-                  style={{
-                    alignSelf: 'flex-end',
-                    alignItems: 'center',
-                    backgroundColor: 'transparent'                 
-                  }}
+                  style={styles.cameraButton}
                   onPress={()=>this.pickImage()}>
                   <Ionicons
                       name="ios-photos"
-                      style={{ color: "#fff", fontSize: 40}}
+                      style={{ color: "#FFF", fontSize: 40}}
                   />
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={{
-                    alignSelf: 'flex-end',
-                    alignItems: 'center',
-                    backgroundColor: 'transparent',
-                  }}
+                  style={styles.cameraButton}
                   onPress={()=>this.takePicture()}
                   >
-                  <FontAwesome
-                      name="camera"
-                      style={{ color: "#fff", fontSize: 40}}
+                  <Ionicons
+                      name="ios-radio-button-on"
+                      style={{ color: "#FFF", fontSize: 80}}
                   />
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={{
-                    alignSelf: 'flex-end',
-                    alignItems: 'center',
-                    backgroundColor: 'transparent',
-                  }}
+                  style={styles.cameraButton}
                   onPress={()=>this.handleCameraType()}
                   >
                   <MaterialCommunityIcons
                       name="camera-switch"
-                      style={{ color: "#fff", fontSize: 40}}
+                      style={{ color: "#FFF", fontSize: 40}}
                   />
                 </TouchableOpacity>
               </View>
-            </Camera>
+            </View>
         </View>
       );
     }
@@ -378,7 +366,7 @@ class SnapCamera extends React.Component {
 
 const styles = StyleSheet.create({
   topBar: {
-    paddingTop: 80,
+    paddingTop: '15%',
     backgroundColor: '#fff',
     flexDirection: 'row',
     alignItems: 'center',
@@ -388,27 +376,36 @@ const styles = StyleSheet.create({
     top: 0,
   },
   camera: {
-    height: '100%',
-    paddingBottom: '40%',
+    height: '69.4%',
+    paddingBottom: 10,
     justifyContent: 'flex-end'
   },
   folderListContainer: {
-    marginBottom: 30
+    marginBottom: 0,
+    backgroundColor: '#000'
   },
   folderItem: {
-    backgroundColor: '#b55f19',
-    padding: 10,
+    paddingTop: 12,
+    paddingBottom: 6,
     marginHorizontal: 16
   },
   folderText: {
-    color: 'white'
+    color: '#fff',
+    fontSize: 16
   },
   cameraButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    width: '80%'
+    alignItems: 'center',
+    paddingLeft: 27,
+    paddingRight: 27,
+    width: '100%',
+    backgroundColor: '#000'
+  },
+  cameraButton: {
+    alignSelf: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent'
   }
 });
 
