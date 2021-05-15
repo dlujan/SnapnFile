@@ -2,7 +2,8 @@ import React from 'react';
 import { StyleSheet, Text, View ,TouchableOpacity, Platform, Image, FlatList} from 'react-native';
 import { Camera } from 'expo-camera';
 import * as Permissions from 'expo-permissions';
-import { FontAwesome, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
 import Slider from '@react-native-community/slider';
 
@@ -94,6 +95,8 @@ class SnapCamera extends React.Component {
   }
 
   takePicture = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
     if (this.camera) {
       let photo = await this.camera.takePictureAsync();
 
@@ -180,6 +183,7 @@ class SnapCamera extends React.Component {
   }
 
   handleCameraType = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     const { cameraType } = this.state;
 
     this.setState({cameraType:
@@ -190,6 +194,7 @@ class SnapCamera extends React.Component {
   }
 
   toggleFlash = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     const { cameraFlash } = this.state;
 
     this.setState({cameraFlash:

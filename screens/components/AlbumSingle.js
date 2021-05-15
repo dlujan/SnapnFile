@@ -26,7 +26,6 @@ export default class AlbumSingle extends React.Component {
             filteredPhotos.push(image);
           }
         })
-
         return (
             <View>
               <TouchableOpacity style={styles.loadedAlbumsSingle} onPress={() => this.setState({viewModal: true})}>
@@ -66,7 +65,10 @@ export default class AlbumSingle extends React.Component {
                     <TouchableOpacity style={styles.modalBackBtn} onPress={() => this.setState({viewModal: false})}>
                       <Text style={styles.modalBackText}>Back</Text>
                     </TouchableOpacity>
-                    <GridImageView data={filteredPhotos} />
+                    <View style={{flex: 1, marginTop: 70}}>
+                    <GridImageView data={filteredPhotos} uri_string={"image_uri"}/>
+                    </View>
+                    
                   </Modal>
                 </View>
               )}
