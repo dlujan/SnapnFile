@@ -23,7 +23,7 @@ export default class AlbumSingle extends React.Component {
         let filteredPhotos = [];
         allPhotos.forEach(image => {
           if (image.album_id === album.id) {
-            filteredPhotos.push(image);
+            filteredPhotos.push(image.image_uri);
           }
         })
         return (
