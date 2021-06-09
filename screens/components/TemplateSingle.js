@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Modal, Button, TextInput, Alert, ScrollView} from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -181,13 +182,42 @@ class TemplateSingle extends React.Component {
         </TouchableOpacity>
         
         {this.state.viewModal && (
-          <View style={styles.modalContainer}>
+          <View>
             <Modal animationType="slide">
               <View style={styles.modalContent}>
-                <Text style={styles.modalHeading}>View/Edit</Text>
+                <Text style={styles.modalHeading}>Template Single</Text>
+                
+                <TextInput
+                    style={styles.modalNewTemplateName}
+                    placeholder={templateTitle}
+                    onChangeText={this.handleTemplateName}
+                    value={this.state.templateNewName}
+                    returnKeyType="done"
+                />
 
-                <TouchableOpacity
-                  style={styles.deleteButton}
+                <View style={styles.newFoldersList}>
+                  <ScrollView>
+                    {this.state.layerOne.length !== 0 && this.state.layerOne.map((name, index) => (
+                    <View key={index} style={styles.modalNewFolderRow}>
+                      <TextInput
+                        style={styles.modalNewFolder}
+                        placeholder={`Folder ${index+1}`}
+                        value={this.state.layerOne[index]}
+                        onChange={(event) => this.handleFolderName(event, index)}
+                        returnKeyType="done"
+                      />
+                      <TouchableOpacity style={styles.modalFolderDelete} onPress={() => this.deleteFolder(index)}>
+                        <FontAwesome name="minus-circle" style={{ color: "red", fontSize: 20}}/>
+                      </TouchableOpacity>
+                    </View>
+                    ))}
+                  </ScrollView>
+                </View>
+
+                <Button title="Add Folder" onPress={() => this.addFolder()}/>
+                <Button title="Save Changes" onPress={() => this.updateTemplate(index)}/>
+                <Button
+                  title="Delete Template"
                   onPress={(event) => Alert.alert(
                     'You sure?',
                     'This template will be deleted permanently.',
@@ -197,30 +227,7 @@ class TemplateSingle extends React.Component {
                     ]
                   )}
                 >
-                  <Text>Delete</Text>
-                </TouchableOpacity>
-                
-                <TextInput
-                    style={styles.modalNewTemplateName}
-                    placeholder={templateTitle}
-                    onChangeText={this.handleTemplateName}
-                    value={this.state.templateNewName}
-                />
-                <ScrollView style={styles.newFoldersList}>
-                    {this.state.layerOne.length !== 0 && this.state.layerOne.map((name, index) => (
-                    <View key={index} style={styles.modalNewFolderRow}>
-                      <TextInput
-                        style={styles.modalNewFolder}
-                        placeholder={`Folder ${index+1}`}
-                        value={this.state.layerOne[index]}
-                        onChange={(event) => this.handleFolderName(event, index)}
-                      />
-                      <TouchableOpacity style={styles.modalFolderDelete} onPress={() => this.deleteFolder(index)}><Text>Delete</Text></TouchableOpacity>
-                    </View>
-                    ))}
-                </ScrollView>
-                <Button title="Add Folder" onPress={() => this.addFolder()}/>
-                <Button title="Save Changes" onPress={() => this.updateTemplate(index)}/>
+                </Button>
                 <Button
                     title="Close"
                     onPress={() => Alert.alert(
@@ -244,72 +251,74 @@ class TemplateSingle extends React.Component {
 
 const styles = StyleSheet.create({
   // Loaded Templates
-  loadedTemplatesList: {
-    backgroundColor: '#f7f7f7',
-    width: '90%'
-  },
   loadedTemplatesSingle: {
-    margin: 5,
-    padding: 5
+    padding: 20,
+    paddingLeft: 0,
+    marginLeft: 20,
+    borderBottomColor: '#E8E9EB',
+    borderBottomWidth: 1
   },
   loadedTemplateRow: {
     flexDirection: 'row',
     alignItems: 'center'
   },
   loadedTemplateTitle: {
-    color: 'orange',
+    color: '#313638',
     fontSize: 20
-  },
-  deleteButton: {
-    padding: 5,
-    backgroundColor: 'red'
   },
   loadedTemplateFolders: {
     margin: 5
   },
 
   // New Template Modal
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22
-  },
   modalContent: {
-    marginTop: 60,
+    paddingTop: 100,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    height: '100%'
   },
   modalHeading: {
-    fontSize: 28,
-    fontWeight: '600'
+    fontSize: 30,
+    fontWeight: 'bold',
+    alignSelf: 'flex-start',
+    marginLeft: 20,
+    marginBottom: 10,
+  },
+  modalNewTemplateName: {
+    padding: 5,
+    paddingLeft: 20,
+    marginBottom: 10,
+    fontSize: 26,
   },
   newFoldersList: {
     backgroundColor: '#f7f7f7',
-    width: '90%',
+    marginLeft: 10,
+    marginRight: 10,
+    width: '100%',
     maxHeight: '41%'
-  },
-  modalNewTemplateName: {
-    padding: 10,
-    fontSize: 26
   },
   modalNewFolderRow: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 10
+    padding: 10,
+    borderBottomColor: '#E8E9EB',
+    borderBottomWidth: 1
   },
   modalNewFolder: {
     fontSize: 20,
-    width: '70%'
+    width: '80%'
   },
   modalFolderDelete: {
-    width: '10%',
-    textAlign: 'center',
-    backgroundColor: 'red'
+    padding: 15
   }
 });
+
+// dark: '#313638',
+// lightish: '#E0DFD5',
+// light: '#E8E9EB',
+// primary: '#F06543',
+// secondary: '#F09D51'
 
 const mapStateToProps = state => ({
   lastChange: state.lastChange

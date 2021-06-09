@@ -86,68 +86,26 @@ export default class Templates extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 60,
+    paddingTop: 100,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    height: '100%'
   },
   pageHeading: {
     fontSize: 30,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    alignSelf: 'flex-start',
+    marginLeft: 20,
+    marginBottom: 10,
   },
-
-  // Loaded Templates
   loadedTemplatesList: {
-    backgroundColor: '#f7f7f7',
-    width: '90%'
-  },
-  loadedTemplatesSingle: {
-    margin: 5,
-    padding: 5
-  },
-  loadedTemplateRow1: {
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  loadedTemplateTitle: {
-    color: 'orange',
-    fontSize: 20
-  },
-  deleteButton: {
-    padding: 5,
-    backgroundColor: 'red'
-  },
-  loadedTemplateFolders: {
-    margin: 5
-  },
-
-  // New Template Modal
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22
-  },
-  modalContent: {
-    marginTop: 60,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  modalHeading: {
-    fontSize: 28,
-    fontWeight: '600'
-  },
-  newFoldersList: {
-    backgroundColor: '#f7f7f7',
-    width: '90%'
-  },
-  modalNewTemplateName: {
-    padding: 10,
-    fontSize: 26
-  },
-  modalNewFolder: {
-    padding: 10,
-    fontSize: 20
+    width: '100%'
   }
 });
+
+// dark: '#313638',
+// lightish: '#E0DFD5',
+// light: '#E8E9EB',
+// primary: '#F06543',
+// secondary: '#F09D51'
