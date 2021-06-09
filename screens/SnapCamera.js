@@ -60,7 +60,6 @@ class SnapCamera extends React.Component {
   }
 
   UNSAFE_componentWillReceiveProps() {
-    console.log(`From snap camera: ${this.props}`)
     this.getSavedAlbums();
   }
 
@@ -80,14 +79,30 @@ class SnapCamera extends React.Component {
   getSavedAlbums = async () => {
     try {
       const savedAlbums = await AsyncStorage.getItem('@storage_savedAlbums')
-      if (savedAlbums !== null && savedAlbums.length !== 0 && Object.keys(this.state.selectedAlbum).length === 0) {
-        // Replace current state (empty array) with new array coming in
+
+      // On app load when the state is initially empty
+      if (savedAlbums !== null && JSON.parse(savedAlbums).length !== 0 && Object.keys(this.state.selectedAlbum).length === 0) {
         this.setState({
           allAlbums: JSON.parse(savedAlbums),
           selectedAlbum: JSON.parse(savedAlbums)[0],
           selectedFolder: JSON.parse(savedAlbums)[0].template.folders[0]
         })
-        //console.log(this.state.selectedAlbum);
+      }
+      // If there are no saved albums
+      else if (savedAlbums === null || JSON.parse(savedAlbums).length === 0) {
+        this.setState({
+          allAlbums: [],
+          selectedAlbum: {},
+          selectedFolder: ''
+        })
+      }
+      // There are albums but the number of them changed (added/deleted) - MAY FAIL IF USER DELETES AN ALBUM AND CREATES A NEW ONE
+      else if (savedAlbums !== null && JSON.parse(savedAlbums).length !== 0 && JSON.parse(savedAlbums).length !== this.state.allAlbums.length) {
+        this.setState({
+          allAlbums: JSON.parse(savedAlbums),
+          selectedAlbum: JSON.parse(savedAlbums)[0],
+          selectedFolder: JSON.parse(savedAlbums)[0].template.folders[0]
+        })
       }
     } catch(e) {
       console.error(e);
