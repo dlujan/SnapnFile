@@ -1,11 +1,17 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Platform, Image, FlatList} from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Platform, Image, FlatList, Dimensions} from 'react-native';
 import { Camera } from 'expo-camera';
 import * as Permissions from 'expo-permissions';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
 import Slider from '@react-native-community/slider';
+import {
+  Menu,
+  MenuOptions,
+  MenuOption,
+  MenuTrigger,
+} from 'react-native-popup-menu';
 
 import { connect } from 'react-redux';
 import { updateLastChange } from '../actions/actions';
@@ -26,6 +32,7 @@ class SnapCamera extends React.Component {
     allAlbums: [],
     selectedAlbum: {},
     selectedFolder: '',
+    selectedFolderIndex: 0,
     testUri: ''
   }
 
@@ -245,18 +252,15 @@ class SnapCamera extends React.Component {
       selectedAlbum: this.state.allAlbums[index],
       selectedFolder: this.state.allAlbums[index].template.folders[0]
     })
-    console.log(this.state.selectedAlbum);
     this.toggleAlbumSelect();
   }
 
-  // handleFolderSelect = () => {
-
-  // }
-
   scrollToFolder = (index) => {
     this.flatListRef.scrollToIndex({animated: true, index: index})
-    this.setState({ selectedFolder: this.state.selectedAlbum.template.folders[index] })
-    console.log(`Selected ${this.state.selectedFolder}`)
+    this.setState({
+      selectedFolder: this.state.selectedAlbum.template.folders[index],
+      selectedFolderIndex: index
+    })
   }
 
   render(){
@@ -285,21 +289,32 @@ class SnapCamera extends React.Component {
                   />
                 )}
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => this.toggleAlbumSelect()}>
-                {noAlbums && (
+                {noAlbums ? (
                   <Text>No Albums</Text>
+                ) : (
+                  <Menu style={{color: '#fff'}}>
+                    <MenuTrigger customStyles={{triggerText: {color: '#fff', fontSize: 16, fontWeight: 'bold'}}} text={this.state.selectedAlbum.name} />
+                    <MenuOptions>
+                      {this.state.allAlbums.map((album, index) => (
+                        <MenuOption key={`album${index}`} onSelect={() => this.handleAlbumSelect(index)}>
+                          <Text>{album.name}</Text>
+                        </MenuOption>
+                      ))}
+                    </MenuOptions>
+                  </Menu>
                 )}
-                <Text style={{color: '#fff'}}>{this.state.selectedAlbum.name}</Text>
-                {this.state.albumMenuExpanded && (
-                  <View style={styles.albumMenu}>
-                    {this.state.allAlbums.map((album, index) => (
-                      <TouchableOpacity onPress={() => this.handleAlbumSelect(index)} key={index}><Text style={{color: '#fff'}}>{album.name}</Text></TouchableOpacity>
+                {!noAlbums && (
+                  <Menu style={{color: '#fff'}}>
+                  <MenuTrigger customStyles={{triggerText: {color: '#fff', fontSize: 16, fontWeight: 'bold'}}} text={this.state.selectedFolder} />
+                  <MenuOptions>
+                    {this.state.selectedAlbum.template.folders.map((folder, index) => (
+                      <MenuOption key={`folder${index}`} onSelect={() => this.scrollToFolder(index)}>
+                        <Text>{folder}</Text>
+                      </MenuOption>
                     ))}
-                  </View>
+                  </MenuOptions>
+                </Menu>
                 )}
-              </TouchableOpacity>
-              {/* TODO: Copy above code for folder too */}
-              <TouchableOpacity onPress={() => this.toggleFolderSelect()}><Text style={{color: '#fff'}}>{this.state.selectedFolder}</Text></TouchableOpacity>
 
               <Image
                 style={{width: 23, height: 38}}
@@ -334,18 +349,26 @@ class SnapCamera extends React.Component {
                     showsHorizontalScrollIndicator={false}
                     data={this.state.selectedAlbum.template.folders}
                     keyExtractor={(item, index) => item}
+                    // getItemLayout={(data, index) => (
+                    //   // Max 5 items visibles at once
+                    //   { length: Dimensions.get('window').width / 5, offset: Dimensions.get('window').width / 5 * index, index }
+                    // )}
                     horizontal
+                    snapToAlignment="center"
                     snapToInterval={20}
-                    snapToAlignment={'center'}
                     decelerationRate={0}
                     bounces={false}
-                    contentContainerStyle={{
-                      alignItems: 'center'
-                    }}
+                    contentContainerStyle={{alignItems: 'center'}}
                     renderItem={({ item, index }) => {
                       return (
-                        <TouchableOpacity style={styles.folderItem} onPress={() => this.scrollToFolder(index)}>
-                          <Text style={styles.folderText}>{this.state.selectedAlbum.template.folders[index]}</Text>
+                        <TouchableOpacity
+                          style={{
+                            paddingTop: 12,
+                            paddingBottom: 6,
+                            marginHorizontal: 16
+                          }}
+                          onPress={() => this.scrollToFolder(index)}>
+                          <Text style={index === this.state.selectedFolderIndex ? styles.folderTextSelected : styles.folderText}>{this.state.selectedAlbum.template.folders[index]}</Text>
                         </TouchableOpacity>
                       )
                     }}
@@ -396,9 +419,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-around',
   },
-  albumMenu: {
-    top: 0
-  },
   camera: {
     height: '69.4%',
     paddingBottom: 10,
@@ -413,13 +433,12 @@ const styles = StyleSheet.create({
     marginBottom: 0,
     backgroundColor: '#000'
   },
-  folderItem: {
-    paddingTop: 12,
-    paddingBottom: 6,
-    marginHorizontal: 16
-  },
   folderText: {
     color: '#fff',
+    fontSize: 16
+  },
+  folderTextSelected: {
+    color: '#F06543',
     fontSize: 16
   },
   cameraButtons: {
