@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View ,TouchableOpacity, Platform, Image, FlatList} from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Platform, Image, FlatList} from 'react-native';
 import { Camera } from 'expo-camera';
 import * as Permissions from 'expo-permissions';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -276,12 +276,12 @@ class SnapCamera extends React.Component {
                 {this.state.cameraFlash ? (
                   <Ionicons
                   name="ios-flash"
-                  style={{ color: "#000", fontSize: 40}}
+                  style={{ color: "#fff", fontSize: 40}}
                   />
                 ) : (
                   <Ionicons
                   name="ios-flash-off"
-                  style={{ color: "#000", fontSize: 40}}
+                  style={{ color: "#fff", fontSize: 40}}
                   />
                 )}
               </TouchableOpacity>
@@ -289,17 +289,17 @@ class SnapCamera extends React.Component {
                 {noAlbums && (
                   <Text>No Albums</Text>
                 )}
-                <Text>{this.state.selectedAlbum.name}</Text>
+                <Text style={{color: '#fff'}}>{this.state.selectedAlbum.name}</Text>
                 {this.state.albumMenuExpanded && (
                   <View style={styles.albumMenu}>
                     {this.state.allAlbums.map((album, index) => (
-                      <TouchableOpacity onPress={() => this.handleAlbumSelect(index)} key={index}><Text>{album.name}</Text></TouchableOpacity>
+                      <TouchableOpacity onPress={() => this.handleAlbumSelect(index)} key={index}><Text style={{color: '#fff'}}>{album.name}</Text></TouchableOpacity>
                     ))}
                   </View>
                 )}
               </TouchableOpacity>
               {/* TODO: Copy above code for folder too */}
-              <TouchableOpacity onPress={() => this.toggleFolderSelect()}><Text>{this.state.selectedFolder}</Text></TouchableOpacity>
+              <TouchableOpacity onPress={() => this.toggleFolderSelect()}><Text style={{color: '#fff'}}>{this.state.selectedFolder}</Text></TouchableOpacity>
 
               <Image
                 style={{width: 23, height: 38}}
@@ -391,13 +391,13 @@ class SnapCamera extends React.Component {
 const styles = StyleSheet.create({
   topBar: {
     paddingTop: '15%',
-    backgroundColor: '#fff',
+    backgroundColor: '#000',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
   },
   albumMenu: {
-    top: 0,
+    top: 0
   },
   camera: {
     height: '69.4%',
