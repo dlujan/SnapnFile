@@ -260,6 +260,7 @@ class SnapCamera extends React.Component {
   }
 
   render(){
+    const noAlbums = Object.keys(this.state.selectedAlbum).length === 0;
     const { hasPermission } = this.state
     if (hasPermission === null) {
       return <View />;
@@ -285,6 +286,9 @@ class SnapCamera extends React.Component {
                 )}
               </TouchableOpacity>
               <TouchableOpacity onPress={() => this.toggleAlbumSelect()}>
+                {noAlbums && (
+                  <Text>No Albums</Text>
+                )}
                 <Text>{this.state.selectedAlbum.name}</Text>
                 {this.state.albumMenuExpanded && (
                   <View style={styles.albumMenu}>
@@ -306,7 +310,7 @@ class SnapCamera extends React.Component {
 
             </View>
             <Camera
-              style={styles.camera}
+              style={noAlbums ? styles.cameraNoAlbums : styles.camera}
               type={this.state.cameraType}
               flashMode={this.state.cameraFlash}
               zoom={this.state.cameraZoom}
@@ -314,7 +318,7 @@ class SnapCamera extends React.Component {
             >
 
               <Slider
-                style={{width: '80%', height: 40, marginLeft: '10%'}}
+                style={!noAlbums ? {width: '80%', height: 40, marginLeft: '10%'} : {display: 'none'}}
                 minimumValue={0}
                 maximumValue={1}
                 minimumTrackTintColor="#FFFFFF"
@@ -349,7 +353,7 @@ class SnapCamera extends React.Component {
                   </FlatList>
                 </View>
               )}
-              <View style={styles.cameraButtons}>
+              <View style={!noAlbums ? styles.cameraButtons : {display: 'none'}}>
                 <TouchableOpacity
                   style={styles.cameraButton}
                   onPress={()=>this.pickImage()}>
@@ -397,6 +401,11 @@ const styles = StyleSheet.create({
   },
   camera: {
     height: '69.4%',
+    paddingBottom: 10,
+    justifyContent: 'flex-end'
+  },
+  cameraNoAlbums: {
+    height: '87%',
     paddingBottom: 10,
     justifyContent: 'flex-end'
   },
