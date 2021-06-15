@@ -1,7 +1,13 @@
 import { FileSystemSessionType } from 'expo-file-system';
 import React from 'react';
-import { StyleSheet, Text, View, Dimensions, Image, TouchableOpacity, Modal, Button, TextInput, Alert} from 'react-native';
+import { StyleSheet, Text, View, Dimensions, Image, TouchableOpacity, Modal, Button, TextInput, Alert, Touchable} from 'react-native';
 import FancyModal from 'react-native-modal';
+import {
+  Menu,
+  MenuOptions,
+  MenuOption,
+  MenuTrigger,
+} from 'react-native-popup-menu';
 import GridImageView from 'react-native-grid-image-viewer';
 import { FontAwesome } from '@expo/vector-icons';
 
@@ -34,10 +40,38 @@ export default class AlbumSingle extends React.Component {
                     <Text style={styles.loadedAlbumTitle}>{album.name}</Text>
                     <Text style={styles.loadedAlbumTemplate}>Template - {album.template.title}</Text>
                   </View>
-                  <TouchableOpacity style={{padding: 15, paddingRight: 20}} onPress={() => this.setState({viewOptionsModal: true})}>
-                    <FontAwesome name="ellipsis-h" style={{ color: "#000", fontSize: 20}}/>
-                  </TouchableOpacity>
-                  <FancyModal
+                  <Menu>
+                      <MenuTrigger
+                        text="..."
+                        customStyles={{
+                          triggerOuterWrapper: {
+                            paddingRight: 20,
+                          },
+                          triggerText: {
+                            fontSize: 40,
+                            color: '#F06543',
+                            lineHeight: 20
+                          }
+                        }}
+                      />
+                      <MenuOptions>
+                        <MenuOption onSelect={() => this.props.uploadAlbumToDropbox(album.id, album.name)}>
+                          <Text>Upload</Text>
+                        </MenuOption>
+                        <MenuOption onSelect={() => Alert.alert(
+                          'You sure?',
+                          'This album and all photos saved within it will be deleted forever.',
+                          [
+                              {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                              {text: 'OK', onPress: () => this.props.deleteAlbum(album.id)}
+                          ]
+                        )}>
+                          <Text style={{color: 'red'}}>Delete</Text>
+                        </MenuOption>
+                      </MenuOptions>
+                    </Menu>
+                  
+                  {/* <FancyModal
                     isVisible={this.state.viewOptionsModal}
                     backdropOpacity={0.40}
                     onBackdropPress={() => this.setState({viewOptionsModal: false})}>
@@ -55,7 +89,7 @@ export default class AlbumSingle extends React.Component {
                         )}
                       />
                     </View>
-                  </FancyModal>
+                  </FancyModal> */}
                 </View>
               </TouchableOpacity>
 

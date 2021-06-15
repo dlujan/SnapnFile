@@ -292,7 +292,7 @@ class SnapCamera extends React.Component {
                 {noAlbums ? (
                   <Text>No Albums</Text>
                 ) : (
-                  <Menu style={{color: '#fff'}}>
+                  <Menu>
                     <MenuTrigger customStyles={{triggerText: {color: '#fff', fontSize: 16, fontWeight: 'bold'}}} text={this.state.selectedAlbum.name} />
                     <MenuOptions>
                       {this.state.allAlbums.map((album, index) => (
@@ -304,7 +304,7 @@ class SnapCamera extends React.Component {
                   </Menu>
                 )}
                 {!noAlbums && (
-                  <Menu style={{color: '#fff'}}>
+                  <Menu>
                   <MenuTrigger customStyles={{triggerText: {color: '#fff', fontSize: 16, fontWeight: 'bold'}}} text={this.state.selectedFolder} />
                   <MenuOptions>
                     {this.state.selectedAlbum.template.folders.map((folder, index) => (
