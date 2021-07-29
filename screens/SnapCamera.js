@@ -420,7 +420,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
   camera: {
-    height: '69.4%',
+    height: '71%',
     paddingBottom: 10,
     justifyContent: 'flex-end'
   },
