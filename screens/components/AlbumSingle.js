@@ -73,26 +73,6 @@ export default class AlbumSingle extends React.Component {
                         </MenuOption>
                       </MenuOptions>
                     </Menu>
-                  
-                  {/* <FancyModal
-                    isVisible={this.state.viewOptionsModal}
-                    backdropOpacity={0.40}
-                    onBackdropPress={() => this.setState({viewOptionsModal: false})}>
-                    <View style={{backgroundColor: '#fff', padding: 20}}>
-                      <Button title="Upload" onPress={() => this.props.uploadAlbumToDropbox(album.id, album.name)}/>
-                      <Button
-                        title="Delete"
-                        onPress={() => Alert.alert(
-                        'You sure?',
-                        'This album and all photos saved within it will be deleted forever.',
-                        [
-                            {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                            {text: 'OK', onPress: () => this.props.deleteAlbum(album.id)}
-                        ]
-                        )}
-                      />
-                    </View>
-                  </FancyModal> */}
                 </View>
               </TouchableOpacity>
 
@@ -103,7 +83,7 @@ export default class AlbumSingle extends React.Component {
                       <Text style={styles.modalBackText}>Back</Text>
                     </TouchableOpacity>
                     <View style={{flex: 1, marginTop: 70}}>
-                    <GridImageView data={filteredPhotos} uri_string={"image_uri"}/>
+                      <GridImageView data={filteredPhotos} uri_string={"image_uri"}/>
                     </View>
                     
                   </Modal>
