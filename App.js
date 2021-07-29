@@ -1,4 +1,5 @@
 import React from 'react';
+import { MenuProvider } from 'react-native-popup-menu';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -54,14 +55,16 @@ const MainTabNavigator = () => {
 export default function App() {
   return (
     <Provider store={store}>
-      <NavigationContainer>
-        <Navigator headerMode="none">
-          <Screen name="Loading" component={Loading} />
-          <Screen name="Login" component={Login} />
-          <Screen name="Signup" component={Signup} />
-          <Screen name="MainTabNavigator" component={MainTabNavigator} />
-        </Navigator>
-      </NavigationContainer>
+      <MenuProvider>
+        <NavigationContainer>
+          <Navigator headerMode="none">
+            <Screen name="Loading" component={Loading} />
+            <Screen name="Login" component={Login} />
+            <Screen name="Signup" component={Signup} />
+            <Screen name="MainTabNavigator" component={MainTabNavigator} />
+          </Navigator>
+        </NavigationContainer>
+      </MenuProvider>
     </Provider>
   );
 }
