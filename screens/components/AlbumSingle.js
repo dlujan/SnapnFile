@@ -45,12 +45,15 @@ export default class AlbumSingle extends React.Component {
                         text="..."
                         customStyles={{
                           triggerOuterWrapper: {
-                            paddingRight: 20,
                           },
                           triggerText: {
-                            fontSize: 40,
+                            position: 'relative',
                             color: '#F06543',
-                            lineHeight: 20
+                            fontSize: 40,
+                            lineHeight: 20,
+                            bottom: -2,
+                            padding: 13,
+                            paddingRight: 20
                           }
                         }}
                       />
