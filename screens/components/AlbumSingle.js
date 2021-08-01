@@ -1,14 +1,13 @@
 import { FileSystemSessionType } from 'expo-file-system';
 import React from 'react';
-import { StyleSheet, Text, View, Dimensions, Image, TouchableOpacity, Modal, Button, TextInput, Alert, Touchable} from 'react-native';
-import FancyModal from 'react-native-modal';
+import { StyleSheet, Text, View, Dimensions, Image, TouchableOpacity, Modal, FlatList, TextInput, Alert, Touchable} from 'react-native';
+import Gallery from 'react-native-image-gallery';
 import {
   Menu,
   MenuOptions,
   MenuOption,
   MenuTrigger,
 } from 'react-native-popup-menu';
-import GridImageView from 'react-native-grid-image-viewer';
 import { FontAwesome } from '@expo/vector-icons';
 
 export default class AlbumSingle extends React.Component {
@@ -17,19 +16,48 @@ export default class AlbumSingle extends React.Component {
         this.state = {
           viewModal: false,
           viewOptionsModal: false,
-          imageIndex: 0
+          viewImageSlider: false,
+          sliderIndex: 0,
         }
     }
 
+    deletePhoto = () => {
+      alert('Gonna delete this pic');
+      // will need this...
+      // await FileSystem.deleteAsync(FileSystem.documentDirectory + 'photos' + '/1615072344565.jpg');
+      // will also need to delete row from sql db...whatever that query will be
+    }
+
+    openImageSlider = (index) => {
+      this.setState({
+        viewImageSlider: true,
+        sliderIndex: index
+      })
+    }
+
+    formatData = (data, numColumns) => {
+      const numberOfFullRows = Math.floor(data.length / numColumns);
+    
+      let numberOfElementsLastRow = data.length - (numberOfFullRows * numColumns);
+      while (numberOfElementsLastRow !== numColumns && numberOfElementsLastRow !== 0) {
+        data.push({ key: `blank-${numberOfElementsLastRow}`, empty: true });
+        numberOfElementsLastRow++;
+      }
+    
+      return data;
+    };
+
     render() {
         const { allPhotos, album } = this.props;
-
+        console.log(allPhotos)
         if (this.props.allPhotos === undefined) return null;
 
         let filteredPhotos = [];
         allPhotos.forEach(image => {
           if (image.album_id === album.id) {
-            filteredPhotos.push(image.image_uri);
+            let photo = { folder_name: image.folder_name, dimensions: { width: 150, height: 150 } }; // maybe make these values dynamic based on screen size???
+            photo.source = {url: image.image_uri};
+            filteredPhotos.push(photo);
           }
         })
         return (
@@ -82,10 +110,39 @@ export default class AlbumSingle extends React.Component {
                     <TouchableOpacity style={styles.modalBackBtn} onPress={() => this.setState({viewModal: false})}>
                       <Text style={styles.modalBackText}>Back</Text>
                     </TouchableOpacity>
-                    <View style={{flex: 1, marginTop: 70}}>
-                      <GridImageView data={filteredPhotos} uri_string={"image_uri"}/>
-                    </View>
-                    
+                    {this.state.viewImageSlider ? (
+                      <View style={{flex: 1, marginTop: 70}}>
+                        <Gallery
+                          style={{ flex: 1, backgroundColor: 'black' }}
+                          images={filteredPhotos}
+                          initialPage={this.state.sliderIndex}
+                          onPageSelected={(index) => this.setState({sliderIndex: index})}
+                        />
+                        <View style={{ top: 0, height: 65, backgroundColor: 'rgba(0, 0, 0, 0.7)', width: '50%', position: 'absolute', justifyContent: 'center' }}>
+                          <TouchableOpacity onPress={() => this.setState({viewImageSlider: false})}><Text style={{ textAlign: 'left', color: 'white', fontSize: 15, paddingLeft: '5%' }}>X</Text></TouchableOpacity>
+                        </View>
+                        <View style={{ top: 0, right: 0, height: 65, backgroundColor: 'rgba(0, 0, 0, 0.7)', width: '50%', position: 'absolute', justifyContent: 'center' }}>
+                          <TouchableOpacity onPress={() => this.deletePhoto()}><Text style={{ textAlign: 'right', color: 'white', fontSize: 15, paddingRight: '5%' }}><FontAwesome name="trash-o" style={{ color: "red", fontSize: 20}}/></Text></TouchableOpacity>
+                        </View>
+                        <View style={{ bottom: 0, height: 100, backgroundColor: 'rgba(0, 0, 0, 0.7)', width: '100%', position: 'absolute', justifyContent: 'center' }}>
+                          <Text style={{ textAlign: 'center', color: 'white', fontSize: 15, fontStyle: 'italic' }}>{filteredPhotos[this.state.sliderIndex].folder_name}</Text>
+                        </View>
+                      </View>
+                    ) : (
+                      <View style={{flex: 1, marginTop: 70}}>
+                        <FlatList
+                          data={this.formatData(filteredPhotos, 3)}
+                          numColumns={3}
+                          keyExtractor={(item, index) => `thumbnail${index}`}
+                          renderItem={({item, index}) => {
+                            if (item.empty) return <View style={[styles.thumbnail, styles.thumbnailInvisible]} />;
+                            return <TouchableOpacity onPress={() => this.openImageSlider(index)} style={styles.thumbnail}><Image style={styles.thumbnailImage} source={{uri: item.source.url}}/></TouchableOpacity>
+                          }}
+                        />
+
+                      </View>
+                    )}
+
                   </Modal>
                 </View>
               )}
@@ -144,5 +201,20 @@ const styles = StyleSheet.create({
   modalNoPhotosNotice: {
     top: '50%',
     left: '30%'
-  }
+  },
+  thumbnail: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    margin: 1,
+    height: Dimensions.get('window').width / 3,
+  },
+  thumbnailImage: {
+    flex:1,
+    resizeMode: 'cover',
+    width: '100%'
+  },
+  thumbnailInvisible: {
+    backgroundColor: 'transparent',
+  },
 })
