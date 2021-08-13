@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, TouchableOpacity, Text, View, Modal, Button, TextInput, Alert} from 'react-native';
+import { StyleSheet, ScrollView, Text, View, Button, TextInput, Alert} from 'react-native';
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getUID } from '../util';
@@ -23,7 +23,7 @@ export default class Templates extends React.Component {
   // *******************************************
   // *******************************************
 
-  // TODO: Cache pulled templates - maybe???
+  // TODO: Cache pulled templates - maybe??? -- yeah probably
   componentDidMount() {
     this.loadTemplatesFromFirebase();
   }
@@ -53,7 +53,7 @@ export default class Templates extends React.Component {
   renderSavedTemplates = () => {
     const templates = this.state.allTemplates;
     return (
-      <View style={styles.loadedTemplatesList}>
+      <ScrollView style={styles.loadedTemplatesList}>
         {Object.keys(templates).map((template, index) => (
           <TemplateSingle
             templates={templates}
@@ -62,7 +62,8 @@ export default class Templates extends React.Component {
             index={index}
           />
         ))}
-      </View>
+        <Button title="Create New Template" onPress={() => this.setState({ viewModal: true })}/>
+      </ScrollView>
     )
   }
 
@@ -77,7 +78,6 @@ export default class Templates extends React.Component {
             closeModal={this.closeNewTemplateModal}
           />
         )}
-        <Button title="Create New Template" onPress={() => this.setState({ viewModal: true })}/>
         <StatusBar style="auto" />
       </View>
     );

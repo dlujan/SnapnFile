@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View, Image, Button, Modal, TextInput, Alert} from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Button, Modal, TextInput, Alert} from 'react-native';
 import RNPickerSelect from "react-native-picker-select";
 import AlbumSingle from './components/AlbumSingle';
 
@@ -226,6 +226,26 @@ class Albums extends React.Component {
     }
   }
 
+  deleteSinglePhoto = async (id, file) => {
+
+    await FileSystem.deleteAsync(FileSystem.documentDirectory + 'photos' + file);
+
+    db.transaction(tx => {
+      tx.executeSql('delete from photos where id = ?;', [id], () => {
+        console.log('Photo metadata was deleted from database.')
+      });
+      tx.executeSql("select * from photos", [], (_, { rows }) => {
+        this.setState({
+          photosFromDatabase: rows
+        }, () => {
+          //console.log(this.state.photosFromDatabase);
+          //console.log('Photos from SQLite loaded into state')
+          this.props.updateLastChange('Photo deleted.')
+        })
+      });
+    })
+  }
+
   deleteImageFiles = async (images) => {
     for (const image of images) {
       let file = image.image_uri.split('/photos/')[1];
@@ -262,15 +282,19 @@ class Albums extends React.Component {
     return (
       <View style={styles.container}>
         <Text style={styles.pageHeading}>Albums</Text>
-        {this.state.allAlbums.length > 0 && this.state.allAlbums.map((album, index) => (
-          <AlbumSingle
-            allPhotos={this.state.photosFromDatabase._array}
-            album={album} 
-            key={index}
-            uploadAlbumToDropbox={this.uploadAlbumToDropbox}
-            deleteAlbum={this.deleteAlbum}
-          />
-        ))}
+        <ScrollView>
+          {this.state.allAlbums.length > 0 && this.state.allAlbums.map((album, index) => (
+            <AlbumSingle
+              allPhotos={this.state.photosFromDatabase._array}
+              album={album} 
+              key={index}
+              uploadAlbumToDropbox={this.uploadAlbumToDropbox}
+              deleteAlbum={this.deleteAlbum}
+              deleteSinglePhoto={this.deleteSinglePhoto}
+            />
+          ))}
+          <Button title="Create New Album" onPress={() => this.setState({ viewCreateAlbumModal: true })}/>
+        </ScrollView>
         { this.state.viewCreateAlbumModal && (
           <View style={styles.modalContainer}>
             <Modal animationType="slide">
@@ -307,7 +331,6 @@ class Albums extends React.Component {
             </Modal>
           </View>
         )}
-        <Button title="Create New Album" onPress={() => this.setState({ viewCreateAlbumModal: true })}/>
         <View style={styles.uploadAlerts}>
           {this.props.uploadMessage.albumUploading && (<Text>Album uploading...</Text>)}
           {!this.props.uploadMessage.albumUploading && this.props.uploadMessage.uploadSuccess && this.props.uploadMessage.uploadMessage !== '' && (<Text>{this.props.uploadMessage.uploadMessage}</Text>)}
