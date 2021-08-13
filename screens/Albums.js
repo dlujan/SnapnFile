@@ -226,6 +226,26 @@ class Albums extends React.Component {
     }
   }
 
+  deleteSinglePhoto = async (id, file) => {
+
+    await FileSystem.deleteAsync(FileSystem.documentDirectory + 'photos' + file);
+
+    db.transaction(tx => {
+      tx.executeSql('delete from photos where id = ?;', [id], () => {
+        console.log('Photo metadata was deleted from database.')
+      });
+      tx.executeSql("select * from photos", [], (_, { rows }) => {
+        this.setState({
+          photosFromDatabase: rows
+        }, () => {
+          //console.log(this.state.photosFromDatabase);
+          //console.log('Photos from SQLite loaded into state')
+          this.props.updateLastChange('Photo deleted.')
+        })
+      });
+    })
+  }
+
   deleteImageFiles = async (images) => {
     for (const image of images) {
       let file = image.image_uri.split('/photos/')[1];
@@ -269,6 +289,7 @@ class Albums extends React.Component {
             key={index}
             uploadAlbumToDropbox={this.uploadAlbumToDropbox}
             deleteAlbum={this.deleteAlbum}
+            deleteSinglePhoto={this.deleteSinglePhoto}
           />
         ))}
         { this.state.viewCreateAlbumModal && (

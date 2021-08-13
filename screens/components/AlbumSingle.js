@@ -1,4 +1,3 @@
-import { FileSystemSessionType } from 'expo-file-system';
 import React from 'react';
 import { StyleSheet, Text, View, Dimensions, Image, TouchableOpacity, Modal, FlatList, TextInput, Alert, Touchable} from 'react-native';
 import Gallery from 'react-native-image-gallery';
@@ -22,10 +21,15 @@ export default class AlbumSingle extends React.Component {
     }
 
     deletePhoto = () => {
-      alert('Gonna delete this pic');
-      // will need this...
-      // await FileSystem.deleteAsync(FileSystem.documentDirectory + 'photos' + '/1615072344565.jpg');
-      // will also need to delete row from sql db...whatever that query will be
+      const { allPhotos, album } = this.props;
+      const filteredPhotos = allPhotos.filter(photo => photo.album_id === album.id);
+
+      const photo = filteredPhotos[this.state.sliderIndex];
+      const id = photo.id;
+      const file = photo.image_uri.split('/photos')[1];
+
+      this.setState({ viewImageSlider: false })
+      this.props.deleteSinglePhoto(id, file);
     }
 
     openImageSlider = (index) => {
@@ -49,7 +53,6 @@ export default class AlbumSingle extends React.Component {
 
     render() {
         const { allPhotos, album } = this.props;
-        console.log(allPhotos)
         if (this.props.allPhotos === undefined) return null;
 
         let filteredPhotos = [];
@@ -119,10 +122,21 @@ export default class AlbumSingle extends React.Component {
                           onPageSelected={(index) => this.setState({sliderIndex: index})}
                         />
                         <View style={{ top: 0, height: 65, backgroundColor: 'rgba(0, 0, 0, 0.7)', width: '50%', position: 'absolute', justifyContent: 'center' }}>
-                          <TouchableOpacity onPress={() => this.setState({viewImageSlider: false})}><Text style={{ textAlign: 'left', color: 'white', fontSize: 15, paddingLeft: '5%' }}>X</Text></TouchableOpacity>
+                          <TouchableOpacity onPress={() => this.setState({viewImageSlider: false})}><Text style={{ textAlign: 'left', color: 'white', fontSize: 15, paddingLeft: '5%' }}><FontAwesome name="close" style={{fontSize: 20}}/></Text></TouchableOpacity>
                         </View>
                         <View style={{ top: 0, right: 0, height: 65, backgroundColor: 'rgba(0, 0, 0, 0.7)', width: '50%', position: 'absolute', justifyContent: 'center' }}>
-                          <TouchableOpacity onPress={() => this.deletePhoto()}><Text style={{ textAlign: 'right', color: 'white', fontSize: 15, paddingRight: '5%' }}><FontAwesome name="trash-o" style={{ color: "red", fontSize: 20}}/></Text></TouchableOpacity>
+                          <TouchableOpacity 
+                            onPress={() => Alert.alert(
+                              'You sure?',
+                              'This image will be permanently deleted.',
+                              [
+                                  {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                                  {text: 'OK', onPress: this.deletePhoto}
+                              ]
+                              )}
+                          >
+                            <Text style={{ textAlign: 'right', color: 'white', fontSize: 15, paddingRight: '5%' }}><FontAwesome name="trash-o" style={{ color: "red", fontSize: 20}}/></Text>
+                          </TouchableOpacity>
                         </View>
                         <View style={{ bottom: 0, height: 100, backgroundColor: 'rgba(0, 0, 0, 0.7)', width: '100%', position: 'absolute', justifyContent: 'center' }}>
                           <Text style={{ textAlign: 'center', color: 'white', fontSize: 15, fontStyle: 'italic' }}>{filteredPhotos[this.state.sliderIndex].folder_name}</Text>
