@@ -103,9 +103,3 @@ const styles = StyleSheet.create({
     width: '100%'
   }
 });
-
-// dark: '#313638',
-// lightish: '#E0DFD5',
-// light: '#E8E9EB',
-// primary: '#F06543',
-// secondary: '#F09D51'

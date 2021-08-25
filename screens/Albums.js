@@ -332,9 +332,9 @@ class Albums extends React.Component {
           </View>
         )}
         <View style={styles.uploadAlerts}>
-          {this.props.uploadMessage.albumUploading && (<Text>Album uploading...</Text>)}
-          {!this.props.uploadMessage.albumUploading && this.props.uploadMessage.uploadSuccess && this.props.uploadMessage.uploadMessage !== '' && (<Text>{this.props.uploadMessage.uploadMessage}</Text>)}
-          {!this.props.uploadMessage.albumUploading && !this.props.uploadMessage.uploadSuccess && this.props.uploadMessage.uploadMessage !== '' && (<Text>{this.props.uploadMessage.uploadMessage}</Text>)}
+          {this.props.uploadMessage.albumUploading && (<Text style={styles.uploadAlertText}>Album uploading...</Text>)}
+          {!this.props.uploadMessage.albumUploading && this.props.uploadMessage.uploadSuccess && this.props.uploadMessage.uploadMessage !== '' && (<Text style={styles.uploadAlertText}>{this.props.uploadMessage.uploadMessage}</Text>)}
+          {!this.props.uploadMessage.albumUploading && !this.props.uploadMessage.uploadSuccess && this.props.uploadMessage.uploadMessage !== '' && (<Text style={styles.uploadAlertText}>{this.props.uploadMessage.uploadMessage}</Text>)}
         </View>
         
         <StatusBar style="auto" />
@@ -386,7 +386,16 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   uploadAlerts: {
-    alignItems: 'center'
+    position: 'absolute',
+    top: 50,
+    left: 0,
+    width: '100%',
+    backgroundColor: '#F06543'
+  },
+  uploadAlertText: {
+    color: '#fff',
+    textAlign: 'center',
+    padding: 14
   }
 });
 

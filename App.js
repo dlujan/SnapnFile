@@ -68,3 +68,9 @@ export default function App() {
     </Provider>
   );
 }
+
+// dark: '#313638',
+// lightish: '#E0DFD5',
+// light: '#E8E9EB',
+// primary: '#F06543',
+// secondary: '#F09D51'
