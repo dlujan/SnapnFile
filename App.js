@@ -73,4 +73,5 @@ export default function App() {
 // lightish: '#E0DFD5',
 // light: '#E8E9EB',
 // primary: '#F06543',
+// primary-dark: '#D94521',
 // secondary: '#F09D51'

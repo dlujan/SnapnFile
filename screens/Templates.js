@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, ScrollView, Text, View, Button, TextInput, Alert} from 'react-native';
+import { StyleSheet, ScrollView, Text, View, TouchableHighlight, Alert} from 'react-native';
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getUID } from '../util';
@@ -62,7 +62,11 @@ export default class Templates extends React.Component {
             index={index}
           />
         ))}
-        <Button title="Create New Template" onPress={() => this.setState({ viewModal: true })}/>
+        <View style={styles.buttonWrap}>
+          <TouchableHighlight underlayColor={'#D94521'} style={styles.touchable} onPress={() => this.setState({ viewModal: true })}>
+            <Text style={styles.button}>Create New Template</Text>
+          </TouchableHighlight>
+        </View>
       </ScrollView>
     )
   }
@@ -78,7 +82,7 @@ export default class Templates extends React.Component {
             closeModal={this.closeNewTemplateModal}
           />
         )}
-        <StatusBar style="auto" />
+        {/* <StatusBar style="auto" /> */}
       </View>
     );
   }
@@ -101,5 +105,21 @@ const styles = StyleSheet.create({
   loadedTemplatesList: {
     backgroundColor: '#fff',
     width: '100%'
+  },
+
+  buttonWrap: {
+    justifyContent: 'center',
+    margin: 12,
+    marginBottom: 0
+  },
+  touchable: {
+    alignItems: 'center',
+    backgroundColor: '#F06543',
+    padding: 12
+  },
+  button: {
+    color: '#FFF',
+    fontSize: 15,
+    fontWeight: 'bold'
   }
 });

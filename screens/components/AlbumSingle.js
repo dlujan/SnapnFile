@@ -111,7 +111,7 @@ export default class AlbumSingle extends React.Component {
                 <View>
                   <Modal animationType="slide">
                     <TouchableOpacity style={styles.modalBackBtn} onPress={() => this.setState({viewModal: false})}>
-                      <Text style={styles.modalBackText}>Back</Text>
+                      <FontAwesome name="chevron-left" style={{ color: "#F06543", fontSize: 20}}/>
                     </TouchableOpacity>
                     {this.state.viewImageSlider ? (
                       <View style={{flex: 1, marginTop: 70}}>
@@ -165,7 +165,7 @@ export default class AlbumSingle extends React.Component {
                 <View>
                   <Modal animationType="slide">
                     <TouchableOpacity style={styles.modalBackBtn} onPress={() => this.setState({viewModal: false})}>
-                      <Text style={styles.modalBackText}>Back</Text>
+                      <FontAwesome name="chevron-left" style={{ color: "#F06543", fontSize: 20}}/>
                     </TouchableOpacity>
                     <Text style={styles.modalNoPhotosNotice}>No photos. Start snapping!</Text>
                   </Modal>
@@ -204,13 +204,9 @@ const styles = StyleSheet.create({
   },
 
   modalBackBtn: {
-    top: '5.5%',
-    left: '5%',
+    top: '6.5%',
+    left: '3%',
     zIndex: 10
-  },
-  modalBackText: {
-    color: '#000',
-    fontSize: 20
   },
   modalNoPhotosNotice: {
     top: '50%',

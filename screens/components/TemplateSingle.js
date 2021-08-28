@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Modal, Button, TextInput, Alert, ScrollView} from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TouchableHighlight, Modal, Button, TextInput, Alert, ScrollView} from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -184,6 +184,18 @@ class TemplateSingle extends React.Component {
         {this.state.viewModal && (
           <View>
             <Modal animationType="slide">
+              <TouchableOpacity style={styles.modalBackBtn}
+                onPress={() => Alert.alert(
+                  'You sure?',
+                  'You will lose any progress updating this template.',
+                  [
+                      {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                      {text: 'OK', onPress: this.closeModal}
+                  ]
+                  )}
+              >
+                <FontAwesome name="chevron-left" style={{ color: "#F06543", fontSize: 20}}/>
+              </TouchableOpacity>
               <View style={styles.modalContent}>
                 <Text style={styles.modalHeading}>Template Single</Text>
                 
@@ -207,38 +219,37 @@ class TemplateSingle extends React.Component {
                         returnKeyType="done"
                       />
                       <TouchableOpacity style={styles.modalFolderDelete} onPress={() => this.deleteFolder(index)}>
-                        <FontAwesome name="minus-circle" style={{ color: "red", fontSize: 20}}/>
+                        <FontAwesome name="minus-circle" style={{ color: '#ed3434', fontSize: 20}}/>
                       </TouchableOpacity>
                     </View>
                     ))}
                   </ScrollView>
                 </View>
 
-                <Button title="Add Folder" onPress={() => this.addFolder()}/>
-                <Button title="Save Changes" onPress={() => this.updateTemplate(index)}/>
-                <Button
-                  title="Delete Template"
-                  onPress={(event) => Alert.alert(
-                    'You sure?',
-                    'This template will be deleted permanently.',
-                    [
-                      {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                      {text: 'OK', onPress: () => this.deleteTemplate(event, index)}
-                    ]
-                  )}
-                >
-                </Button>
-                <Button
-                    title="Close"
-                    onPress={() => Alert.alert(
-                    'You sure?',
-                    'You will lose any progress updating this template.',
-                    [
+                <View style={styles.buttonWrap}>
+                  <TouchableHighlight underlayColor={'#D94521'} style={styles.touchable} onPress={() => this.addFolder()}>
+                    <Text style={styles.button}>Add Folder</Text>
+                  </TouchableHighlight>
+                </View>
+                <View style={styles.buttonWrap}>
+                  <TouchableHighlight underlayColor={'#1c911c'} style={[styles.touchable, styles.green]} onPress={() => this.updateTemplate(index)}>
+                    <Text style={styles.button}>Save Changes</Text>
+                  </TouchableHighlight>
+                </View>
+                <View style={styles.buttonWrap}>
+                  <TouchableHighlight underlayColor={'#c72c2c'} style={[styles.touchable, styles.red]} 
+                    onPress={(event) => Alert.alert(
+                      'You sure?',
+                      'This template will be deleted permanently.',
+                      [
                         {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                        {text: 'OK', onPress: this.closeModal}
-                    ]
+                        {text: 'OK', onPress: () => this.deleteTemplate(event, index)}
+                      ]
                     )}
-                />
+                  >
+                    <Text style={styles.button}>Delete Template</Text>
+                  </TouchableHighlight>
+                </View>
               </View>
             </Modal>
           </View>
@@ -250,6 +261,11 @@ class TemplateSingle extends React.Component {
 }
 
 const styles = StyleSheet.create({
+  modalBackBtn: {
+    top: '6.5%',
+    left: '3%',
+    zIndex: 10
+  },
   // Loaded Templates
   loadedTemplatesSingle: {
     padding: 20,
@@ -311,14 +327,30 @@ const styles = StyleSheet.create({
   },
   modalFolderDelete: {
     padding: 15
+  },
+
+  buttonWrap: {
+    justifyContent: 'center',
+    margin: 12,
+    marginBottom: 0
+  },
+  touchable: {
+    alignItems: 'center',
+    backgroundColor: '#F06543',
+    padding: 12
+  },
+  green: {
+    backgroundColor: '#22b522'
+  },
+  red: {
+    backgroundColor: '#ed3434'
+  },
+  button: {
+    color: '#FFF',
+    fontSize: 15,
+    fontWeight: 'bold'
   }
 });
-
-// dark: '#313638',
-// lightish: '#E0DFD5',
-// light: '#E8E9EB',
-// primary: '#F06543',
-// secondary: '#F09D51'
 
 const mapStateToProps = state => ({
   lastChange: state.lastChange
