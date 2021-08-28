@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Modal, Button, TouchableOpacity, TextInput, Alert, ScrollView} from 'react-native';
+import { StyleSheet, Text, View, Modal, Button, TouchableOpacity, TouchableHighlight, TextInput, Alert, ScrollView} from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -134,9 +134,31 @@ class TemplateNew extends React.Component {
                 </ScrollView>
               </View>
 
-              <Button title="Add Folder" onPress={() => this.addFolder()}/>
-              <Button title="Save Template" onPress={() => this.createTemplate()}/>
-              <Button
+              <View style={styles.buttonWrap}>
+                  <TouchableHighlight underlayColor={'#D94521'} style={styles.touchable} onPress={() => this.addFolder()}>
+                    <Text style={styles.button}>Add Folder</Text>
+                  </TouchableHighlight>
+                </View>
+                <View style={styles.buttonWrap}>
+                  <TouchableHighlight underlayColor={'#1c911c'} style={[styles.touchable, styles.green]} onPress={() => this.createTemplate()}>
+                    <Text style={styles.button}>Save Changes</Text>
+                  </TouchableHighlight>
+                </View>
+                <View style={styles.buttonWrap}>
+                  <TouchableHighlight underlayColor={'#c72c2c'} style={[styles.touchable, styles.red]}
+                    onPress={() => Alert.alert(
+                      'You sure?',
+                      'You will lose your current progress on this new template.',
+                      [
+                          {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                          {text: 'OK', onPress: this.closeModal}
+                      ]
+                    )}
+                  >
+                    <Text style={styles.button}>Close</Text>
+                  </TouchableHighlight>
+                </View>
+              {/* <Button
                   title="Close"
                   onPress={() => Alert.alert(
                   'You sure?',
@@ -146,7 +168,7 @@ class TemplateNew extends React.Component {
                       {text: 'OK', onPress: this.closeModal}
                   ]
                   )}
-              />
+              /> */}
               </View>
             </Modal>
         </View>
@@ -195,6 +217,28 @@ const styles = StyleSheet.create({
   },
   modalFolderDelete: {
     padding: 15
+  },
+
+  buttonWrap: {
+    justifyContent: 'center',
+    margin: 12,
+    marginBottom: 0
+  },
+  touchable: {
+    alignItems: 'center',
+    backgroundColor: '#F06543',
+    padding: 12
+  },
+  green: {
+    backgroundColor: '#22b522'
+  },
+  red: {
+    backgroundColor: '#ed3434'
+  },
+  button: {
+    color: '#FFF',
+    fontSize: 15,
+    fontWeight: 'bold'
   }
 });
 

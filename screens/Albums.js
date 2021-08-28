@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView, Button, Modal, TextInput, Alert} from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Button, Modal, TextInput, Alert, TouchableHighlight} from 'react-native';
 import RNPickerSelect from "react-native-picker-select";
 import AlbumSingle from './components/AlbumSingle';
 
@@ -293,7 +293,11 @@ class Albums extends React.Component {
               deleteSinglePhoto={this.deleteSinglePhoto}
             />
           ))}
-          <Button title="Create New Album" onPress={() => this.setState({ viewCreateAlbumModal: true })}/>
+          <View style={styles.buttonWrap}>
+            <TouchableHighlight underlayColor={'#D94521'} style={styles.touchable} onPress={() => this.setState({ viewCreateAlbumModal: true })}>
+              <Text style={styles.button}>Create New Album</Text>
+            </TouchableHighlight>
+          </View>
         </ScrollView>
         { this.state.viewCreateAlbumModal && (
           <View style={styles.modalContainer}>
@@ -315,8 +319,27 @@ class Albums extends React.Component {
                     items={templateOptions}
                   />
                 </View>
-                <Button title="Save Album" onPress={() => this.createAlbum()}/>
-                <Button
+                {/* <Button title="Save Album" onPress={() => this.createAlbum()}/> */}
+                <View style={styles.buttonWrap}>
+                  <TouchableHighlight underlayColor={'#1c911c'} style={[styles.touchable, styles.green]} onPress={() => this.createAlbum()}>
+                    <Text style={styles.button}>Save Album</Text>
+                  </TouchableHighlight>
+                </View>
+                <View style={styles.buttonWrap}>
+                  <TouchableHighlight underlayColor={'#c72c2c'} style={[styles.touchable, styles.red]}
+                    onPress={() => Alert.alert(
+                      'You sure?',
+                      'You will lose your current progress on this new album.',
+                      [
+                          {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                          {text: 'OK', onPress: this.closeNewAlbumModal}
+                      ]
+                    )}
+                  >
+                    <Text style={styles.button}>Close</Text>
+                  </TouchableHighlight>
+                </View>
+                {/* <Button
                   title="Close"
                   onPress={() => Alert.alert(
                   'You sure?',
@@ -326,7 +349,7 @@ class Albums extends React.Component {
                       {text: 'OK', onPress: this.closeNewAlbumModal}
                   ]
                   )}
-                />
+                /> */}
               </View>
             </Modal>
           </View>
@@ -337,7 +360,7 @@ class Albums extends React.Component {
           {!this.props.uploadMessage.albumUploading && !this.props.uploadMessage.uploadSuccess && this.props.uploadMessage.uploadMessage !== '' && (<Text style={styles.uploadAlertText}>{this.props.uploadMessage.uploadMessage}</Text>)}
         </View>
         
-        <StatusBar style="auto" />
+        {/* <StatusBar style="auto" /> */}
       </View>
     );
   }
@@ -396,6 +419,28 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
     padding: 14
+  },
+
+  buttonWrap: {
+    justifyContent: 'center',
+    margin: 12,
+    marginBottom: 0
+  },
+  touchable: {
+    alignItems: 'center',
+    backgroundColor: '#F06543',
+    padding: 12
+  },
+  green: {
+    backgroundColor: '#22b522'
+  },
+  red: {
+    backgroundColor: '#ed3434'
+  },
+  button: {
+    color: '#FFF',
+    fontSize: 15,
+    fontWeight: 'bold'
   }
 });
 
@@ -417,7 +462,7 @@ const modalPicker = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E0DFD5',
     color: 'black',
-  }
+  },
 })
 
 const mapStateToProps = state => ({
