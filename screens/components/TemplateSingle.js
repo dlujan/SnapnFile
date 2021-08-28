@@ -184,6 +184,9 @@ class TemplateSingle extends React.Component {
         {this.state.viewModal && (
           <View>
             <Modal animationType="slide">
+              <TouchableOpacity style={styles.modalBackBtn} onPress={() => this.closeModal()}>
+                <FontAwesome name="chevron-left" style={{ color: "#F06543", fontSize: 20}}/>
+              </TouchableOpacity>
               <View style={styles.modalContent}>
                 <Text style={styles.modalHeading}>Template Single</Text>
                 
@@ -228,7 +231,7 @@ class TemplateSingle extends React.Component {
                   )}
                 >
                 </Button>
-                <Button
+                {/* <Button
                     title="Close"
                     onPress={() => Alert.alert(
                     'You sure?',
@@ -238,7 +241,7 @@ class TemplateSingle extends React.Component {
                         {text: 'OK', onPress: this.closeModal}
                     ]
                     )}
-                />
+                /> */}
               </View>
             </Modal>
           </View>
@@ -250,6 +253,11 @@ class TemplateSingle extends React.Component {
 }
 
 const styles = StyleSheet.create({
+  modalBackBtn: {
+    top: '6.5%',
+    left: '3%',
+    zIndex: 10
+  },
   // Loaded Templates
   loadedTemplatesSingle: {
     padding: 20,
