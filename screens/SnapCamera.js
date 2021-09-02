@@ -39,7 +39,7 @@ class SnapCamera extends React.Component {
 
   async componentDidMount() {
     this.setState({
-      testUri: 'https://daniellujan.com/wp-content/themes/portfolio-website-updated/images/me-profile-img.jpg'
+      testUri: 'https://unsplash.com/photos/RoYujmHrdxA'
     })
 
 
@@ -50,10 +50,14 @@ class SnapCamera extends React.Component {
       tx.executeSql(
         'CREATE TABLE if not exists photos (id integer primary key not null, album_id int, image_uri text, folder_name text);'
       );
-      tx.executeSql("select * from photos", [], (_, { rows }) =>
-        //console.log(JSON.stringify(rows))
+      tx.executeSql("select * from photos", [], (_, { rows }) => {
+        const photos = rows._array;
+        const index = rows._array.length - 1;
+        if (photos.length) {
+          this.setState({ testUri: photos[index].image_uri })
+        }
         console.log('DB stuff loaded')
-      );
+      });
       // DEV : Delete a row from photos table manually
       //tx.executeSql('delete from photos where id = ?;', [1]);
     });
