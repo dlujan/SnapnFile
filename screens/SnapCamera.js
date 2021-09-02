@@ -27,6 +27,7 @@ class SnapCamera extends React.Component {
     hasPermission: null,
     cameraType: Camera.Constants.Type.back,
     cameraFlash: Camera.Constants.FlashMode.off,
+    isLandscape: Dimensions.get("screen").height < Dimensions.get("screen").width,
     albumMenuExpanded: false,
     folderMenuExpanded: false,
     allAlbums: [],
@@ -63,6 +64,18 @@ class SnapCamera extends React.Component {
 
     // DEV : Remove specific image from file system
     //await FileSystem.deleteAsync(FileSystem.documentDirectory + 'photos' + '/1615072344565.jpg');
+
+    Dimensions.addEventListener('change', (event) => {
+      const dim = Dimensions.get("screen");
+      const width = dim.width;
+      const height = dim.height;
+      const landscape = height < width;
+      if (landscape) {
+        this.setState({ isLandscape: true })
+      } else {
+        this.setState({ isLandscape: false })
+      }
+    })
 
   }
 
@@ -280,12 +293,12 @@ class SnapCamera extends React.Component {
                 {this.state.cameraFlash ? (
                   <Ionicons
                   name="ios-flash"
-                  style={{ color: "#fff", fontSize: 40}}
+                  style={styles.icon40}
                   />
                 ) : (
                   <Ionicons
                   name="ios-flash-off"
-                  style={{ color: "#fff", fontSize: 40}}
+                  style={[styles.icon40, this.state.isLandscape && styles.rotate]}
                   />
                 )}
               </TouchableOpacity>
@@ -317,7 +330,7 @@ class SnapCamera extends React.Component {
                 )}
 
               <Image
-                style={{width: 23, height: 38}}
+                style={[{width: 23, height: 38}, this.state.isLandscape && styles.rotate]}
                 source={{
                   uri: this.state.testUri,
                 }}
@@ -382,7 +395,7 @@ class SnapCamera extends React.Component {
                   onPress={()=>this.pickImage()}>
                   <Ionicons
                       name="ios-photos"
-                      style={{ color: "#FFF", fontSize: 40}}
+                      style={[styles.icon40, this.state.isLandscape && styles.rotate]}
                   />
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -400,7 +413,7 @@ class SnapCamera extends React.Component {
                   >
                   <MaterialCommunityIcons
                       name="camera-switch"
-                      style={{ color: "#FFF", fontSize: 40}}
+                      style={[styles.icon40, this.state.isLandscape && styles.rotate]}
                   />
                 </TouchableOpacity>
               </View>
@@ -414,13 +427,14 @@ class SnapCamera extends React.Component {
 const styles = StyleSheet.create({
   topBar: {
     paddingTop: '15%',
+    paddingBottom: '2%',
     backgroundColor: '#000',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
   },
   camera: {
-    height: '71%',
+    height: '70%',
     paddingBottom: 10,
     justifyContent: 'flex-end'
   },
@@ -450,10 +464,17 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: '#000'
   },
+  icon40: {
+    color: "#FFF",
+    fontSize: 40
+  },
   cameraButton: {
     alignSelf: 'center',
     alignItems: 'center',
     backgroundColor: 'transparent'
+  },
+  rotate: {
+    transform: [{ rotate: '90deg'}]
   }
 });
 
