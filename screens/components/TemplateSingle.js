@@ -186,7 +186,7 @@ class TemplateSingle extends React.Component {
             <Modal animationType="slide">
               <TouchableOpacity style={styles.modalBackBtn}
                 onPress={() => Alert.alert(
-                  'You sure?',
+                  'Confirm',
                   'You will lose any progress updating this template.',
                   [
                       {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
@@ -239,7 +239,7 @@ class TemplateSingle extends React.Component {
                 <View style={styles.buttonWrap}>
                   <TouchableHighlight underlayColor={'#c72c2c'} style={[styles.touchable, styles.red]} 
                     onPress={(event) => Alert.alert(
-                      'You sure?',
+                      'Confirm',
                       'This template will be deleted permanently.',
                       [
                         {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
