@@ -75,7 +75,7 @@ export default function Account() {
   return (
     <View style={styles.container}>
       <Text style={styles.pageHeading}>Account</Text>
-      <Text style={styles.userName}>Welcome, {userName}</Text>
+      <Text style={styles.userName}>Hi, {userName}</Text>
       {!isToken && request &&  (
         <View style={styles.buttonWrap}>
         <TouchableHighlight underlayColor={'#0057e5'} style={styles.touchable} onPress={() => {if (!isToken) promptAsync({ useProxy })}}>
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     alignSelf: 'flex-start',
     marginLeft: 20,
-    marginBottom: 100,
+    marginBottom: 50,
   },
   buttonWrap: {
     justifyContent: 'center',

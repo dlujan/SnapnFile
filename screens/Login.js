@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import { StyleSheet, View, Button } from 'react-native';
 import * as Google from 'expo-google-app-auth';
 import firebase from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -116,7 +116,7 @@ export default function Login() {
   return (
     <View style={styles.container}>
       <Button 
-        title="Sign In With Google"
+        title="Sign in with Google"
         onPress={() => signInWithGoogleAsync()}
       />
       <StatusBar style="auto" />
