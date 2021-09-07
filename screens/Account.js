@@ -5,6 +5,7 @@ import firebase from 'firebase';
 import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri, ResponseType, useAuthRequest } from 'expo-auth-session';
 import { dbClientID } from '../config';
+import { getUserName } from '../util';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 WebBrowser.maybeCompleteAuthSession();
@@ -18,6 +19,7 @@ const discovery = {
 const useProxy = Platform.select({ web: false, default: true });
 
 export default function Account() {
+  const [userName, setUserName] = React.useState('');
   const [isToken, setTokenExists] = React.useState(false);
   const [request, response, promptAsync] = useAuthRequest(
     {
@@ -43,7 +45,14 @@ export default function Account() {
       setDBToken(access_token);
       setTokenExists(true);
     }
+
+    getTheName();
   }, [response]);
+
+  const getTheName = async () => {
+    const name = await getUserName();
+    setUserName(name);
+  }
 
   const setDBToken = async (token) => {
     try {
@@ -54,7 +63,7 @@ export default function Account() {
   }
 
   const signOutUser = async () => {
-    const keys = ['@storage_Key', '@user_Id']
+    const keys = ['@storage_Key', '@user_Id', '@user_Name']
     try {
       await AsyncStorage.multiRemove(keys);
     } catch(e) {
@@ -65,7 +74,8 @@ export default function Account() {
 
   return (
     <View style={styles.container}>
-      <Text>Account</Text>
+      <Text style={styles.pageHeading}>Account</Text>
+      <Text style={styles.userName}>Welcome, {userName}</Text>
       <Button title="Sign out" onPress={() => signOutUser()}/>
       {!isToken && (
         <Button
@@ -81,9 +91,22 @@ export default function Account() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    paddingTop: 100,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    height: '100%'
   },
+  pageHeading: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    alignSelf: 'flex-start',
+    marginLeft: 20,
+    marginBottom: 10,
+  },
+  userName: {
+    fontSize: 20,
+    alignSelf: 'flex-start',
+    marginLeft: 20,
+    marginBottom: 100,
+  }
 });

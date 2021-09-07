@@ -42,6 +42,7 @@ const onSignIn = (googleUser) => {
           })
         }
         setUID(result.user.uid);
+        setUserName(result.additionalUserInfo.profile.given_name, result.additionalUserInfo.profile.family_name);
       })
       .catch(function(error) {
         // Handle Errors here.
@@ -97,6 +98,15 @@ const isUserEqual = (googleUser, firebaseUser) => {
 const setUID = async (id) => {
   try {
     await AsyncStorage.setItem('@user_Id', id)
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+const setUserName = async (first, last) => {
+  const name = `${first}/${last}`;
+  try {
+    await AsyncStorage.setItem('@user_Name', name)
   } catch (e) {
     console.error(e);
   }
