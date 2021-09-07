@@ -144,19 +144,19 @@ class Albums extends React.Component {
 
     if (this.state.newAlbumName !== '' && this.state.newAlbumName.trim() !== "" && this.state.newAlbumTemplate !== null) {
 
-      let testAlbum = {
+      let newAlbum = {
         id: Date.now(),
         name: this.state.newAlbumName,
         template: this.state.allTemplates[this.state.newAlbumTemplate]
       };
 
-      testAlbum.name = testAlbum.name.replace(/[^a-zA-Z0-9-_]/g, '');
+      newAlbum.name = newAlbum.name.replace(/[^a-zA-Z0-9-_]/g, '');
   
       // Create temporary copy of all albums in state and push new album to it
       let allAlbumsToSave = this.state.allAlbums;
-      allAlbumsToSave.push(testAlbum);
+      allAlbumsToSave.push(newAlbum);
 
-      if (testAlbum.template === null || testAlbum.template === undefined) return null;
+      if (newAlbum.template === null || newAlbum.template === undefined) return null;
   
       try {
         // Set state's allAlbums into storage, including the new one
