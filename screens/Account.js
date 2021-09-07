@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import { StyleSheet, Text, View, Button, TouchableHighlight } from 'react-native';
 import firebase from 'firebase';
 import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri, ResponseType, useAuthRequest } from 'expo-auth-session';
@@ -76,14 +76,14 @@ export default function Account() {
     <View style={styles.container}>
       <Text style={styles.pageHeading}>Account</Text>
       <Text style={styles.userName}>Welcome, {userName}</Text>
-      <Button title="Sign out" onPress={() => signOutUser()}/>
-      {!isToken && (
-        <Button
-        disabled={!request}
-        title="Connect to Dropbox"
-        onPress={() => {if (!isToken) promptAsync({ useProxy })}}
-        />
+      {!isToken && request &&  (
+        <View style={styles.buttonWrap}>
+        <TouchableHighlight underlayColor={'#0057e5'} style={styles.touchable} onPress={() => {if (!isToken) promptAsync({ useProxy })}}>
+          <Text style={styles.button}>Connect to Dropbox</Text>
+        </TouchableHighlight>
+      </View>
       )}
+      <Button title="Sign out" onPress={() => signOutUser()}/>
       <StatusBar style="auto" />
     </View>
   );
@@ -108,5 +108,20 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginLeft: 20,
     marginBottom: 100,
+  },
+  buttonWrap: {
+    justifyContent: 'center',
+    margin: 12,
+    marginBottom: 20
+  },
+  touchable: {
+    alignItems: 'center',
+    backgroundColor: '#0061fe',
+    padding: 12
+  },
+  button: {
+    color: '#FFF',
+    fontSize: 15,
+    fontWeight: 'bold'
   }
 });
