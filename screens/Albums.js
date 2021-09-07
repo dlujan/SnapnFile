@@ -35,7 +35,8 @@ class Albums extends React.Component {
     this.loadTemplatesFromFirebase();
     this.getSavedAlbums();
     this.fetchAndSetPhotosFromDB();
-    //this.deleteAlbum(1618187120142);
+    // DEV: If I accidentally create a faulty album,  put its id in this function
+    // this.deleteAlbum(1630973498687);
   }
 
   UNSAFE_componentWillReceiveProps() {
@@ -148,11 +149,14 @@ class Albums extends React.Component {
         name: this.state.newAlbumName,
         template: this.state.allTemplates[this.state.newAlbumTemplate]
       };
-      newAlbum.name = newAlbum.name.replace(/\//g, '-');
+
+      newAlbum.name = newAlbum.name.replace(/[^a-zA-Z0-9-_]/g, '');
   
       // Create temporary copy of all albums in state and push new album to it
       let allAlbumsToSave = this.state.allAlbums;
       allAlbumsToSave.push(newAlbum);
+
+      if (newAlbum.template === null || newAlbum.template === undefined) return null;
   
       try {
         // Set state's allAlbums into storage, including the new one
@@ -329,7 +333,7 @@ class Albums extends React.Component {
                 <View style={styles.buttonWrap}>
                   <TouchableHighlight underlayColor={'#c72c2c'} style={[styles.touchable, styles.red]}
                     onPress={() => Alert.alert(
-                      'You sure?',
+                      'Confirm',
                       'You will lose your current progress on this new album.',
                       [
                           {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
@@ -343,7 +347,7 @@ class Albums extends React.Component {
                 {/* <Button
                   title="Close"
                   onPress={() => Alert.alert(
-                  'You sure?',
+                  'Confirm',
                   'You will lose your current progress on this new album.',
                   [
                       {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},

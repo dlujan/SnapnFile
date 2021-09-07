@@ -310,7 +310,20 @@ class SnapCamera extends React.Component {
                   <Text>No Albums</Text>
                 ) : (
                   <Menu>
-                    <MenuTrigger customStyles={{triggerText: {color: '#fff', fontSize: 16, fontWeight: 'bold'}}} text={this.state.selectedAlbum.name} />
+                    <MenuTrigger
+                      customStyles={{
+                        triggerText: {
+                          color: '#fff',
+                          fontSize: 16,
+                          fontWeight: 'bold'
+                        }
+                      }}
+                      text={
+                        this.state.selectedAlbum.name.length > 10 ?
+                        (((this.state.selectedAlbum.name).substring(0,10-3)) + '...') :
+                        this.state.selectedAlbum.name
+                      }
+                    />
                     <MenuOptions>
                       {this.state.allAlbums.map((album, index) => (
                         <MenuOption key={`album${index}`} onSelect={() => this.handleAlbumSelect(index)}>
@@ -322,7 +335,14 @@ class SnapCamera extends React.Component {
                 )}
                 {!noAlbums && (
                   <Menu>
-                  <MenuTrigger customStyles={{triggerText: {color: '#fff', fontSize: 16, fontWeight: 'bold'}}} text={this.state.selectedFolder} />
+                  <MenuTrigger
+                    customStyles={{triggerText: {color: '#fff', fontSize: 16, fontWeight: 'bold'}}}
+                    text={
+                      this.state.selectedFolder.length > 10 ?
+                      (((this.state.selectedFolder).substring(0,10-3)) + '...') :
+                      this.state.selectedFolder
+                    }
+                  />
                   <MenuOptions>
                     {this.state.selectedAlbum.template.folders.map((folder, index) => (
                       <MenuOption key={`folder${index}`} onSelect={() => this.scrollToFolder(index)}>

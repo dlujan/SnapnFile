@@ -147,7 +147,7 @@ class TemplateNew extends React.Component {
                 <View style={styles.buttonWrap}>
                   <TouchableHighlight underlayColor={'#c72c2c'} style={[styles.touchable, styles.red]}
                     onPress={() => Alert.alert(
-                      'You sure?',
+                      'Confirm',
                       'You will lose your current progress on this new template.',
                       [
                           {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
@@ -161,7 +161,7 @@ class TemplateNew extends React.Component {
               {/* <Button
                   title="Close"
                   onPress={() => Alert.alert(
-                  'You sure?',
+                  'Confirm',
                   'You will lose your current progress on this new template.',
                   [
                       {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},

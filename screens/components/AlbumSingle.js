@@ -90,17 +90,17 @@ export default class AlbumSingle extends React.Component {
                       />
                       <MenuOptions>
                         <MenuOption onSelect={() => this.props.uploadAlbumToDropbox(album.id, album.name)}>
-                          <Text>Upload</Text>
+                          <Text style={{fontSize: 20}}>Upload</Text>
                         </MenuOption>
                         <MenuOption onSelect={() => Alert.alert(
-                          'You sure?',
-                          'This album and all photos saved within it will be deleted forever.',
+                          'Confirm',
+                          'This album and all photos saved within it will be deleted permanently.',
                           [
                               {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
                               {text: 'OK', onPress: () => this.props.deleteAlbum(album.id)}
                           ]
                         )}>
-                          <Text style={{color: 'red'}}>Delete</Text>
+                          <Text style={{color: 'red', fontSize: 20}}>Delete</Text>
                         </MenuOption>
                       </MenuOptions>
                     </Menu>
@@ -127,7 +127,7 @@ export default class AlbumSingle extends React.Component {
                         <View style={{ top: 0, right: 0, height: 65, backgroundColor: 'rgba(0, 0, 0, 0.7)', width: '50%', position: 'absolute', justifyContent: 'center' }}>
                           <TouchableOpacity 
                             onPress={() => Alert.alert(
-                              'You sure?',
+                              'Confirm',
                               'This image will be permanently deleted.',
                               [
                                   {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
