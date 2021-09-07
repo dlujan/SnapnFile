@@ -35,7 +35,8 @@ class Albums extends React.Component {
     this.loadTemplatesFromFirebase();
     this.getSavedAlbums();
     this.fetchAndSetPhotosFromDB();
-    //this.deleteAlbum(1618187120142);
+    // DEV: If I accidentally create a faulty album,  put its id in this function
+    //this.deleteAlbum(1630972778413);
   }
 
   UNSAFE_componentWillReceiveProps() {
@@ -143,11 +144,13 @@ class Albums extends React.Component {
 
     if (this.state.newAlbumName !== '' && this.state.newAlbumName.trim() !== "" && this.state.newAlbumTemplate !== null) {
 
-      const testAlbum = {
+      let testAlbum = {
         id: Date.now(),
         name: this.state.newAlbumName,
         template: this.state.allTemplates[this.state.newAlbumTemplate]
       };
+
+      testAlbum.name = testAlbum.name.replace(/[^a-zA-Z0-9-_]/g, '');
   
       // Create temporary copy of all albums in state and push new album to it
       let allAlbumsToSave = this.state.allAlbums;
