@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Platform, Image, FlatList, Dimensions} from 'react-native';
 import { Camera } from 'expo-camera';
 import * as Permissions from 'expo-permissions';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
 import Slider from '@react-native-community/slider';
@@ -297,12 +297,12 @@ class SnapCamera extends React.Component {
                 {this.state.cameraFlash ? (
                   <Ionicons
                   name="ios-flash"
-                  style={styles.icon40}
+                  style={{ color: '#FFF', fontSize: 30 }}
                   />
                 ) : (
                   <Ionicons
                   name="ios-flash-off"
-                  style={[styles.icon40, this.state.isLandscape && styles.rotate]}
+                  style={[{ color: '#FFF', fontSize: 30 }, this.state.isLandscape && styles.rotate]}
                   />
                 )}
               </TouchableOpacity>
@@ -417,8 +417,8 @@ class SnapCamera extends React.Component {
                 <TouchableOpacity
                   style={styles.cameraButton}
                   onPress={()=>this.pickImage()}>
-                  <Ionicons
-                      name="ios-photos"
+                  <MaterialIcons
+                      name="photo-library"
                       style={[styles.icon40, this.state.isLandscape && styles.rotate]}
                   />
                 </TouchableOpacity>
@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
   camera: {
-    height: '70%',
+    height: '69.5%',
     paddingBottom: 10,
     justifyContent: 'flex-end'
   },

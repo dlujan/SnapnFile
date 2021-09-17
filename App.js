@@ -33,7 +33,7 @@ const MainTabNavigator = () => {
         let iconName;
 
         if (route.name === 'Templates') iconName = focused ? 'ios-copy' : 'ios-copy';
-        else if (route.name === 'Albums') iconName = focused ? 'ios-photos' : 'ios-photos';
+        else if (route.name === 'Albums') iconName = focused ? 'ios-albums' : 'ios-albums';
         else if (route.name === 'SnapCamera') iconName = focused ? 'md-camera' : 'md-camera';
         else if (route.name === 'Account') iconName = focused ? 'md-person' : 'md-person';
 
