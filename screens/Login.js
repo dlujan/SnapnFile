@@ -66,6 +66,7 @@ const signInWithGoogleAsync = async () => {
       //androidClientId: YOUR_CLIENT_ID_HERE,
       iosClientId: '485885658904-554ksfe631f5qla5003aph9bqh5rdobe.apps.googleusercontent.com',
       scopes: ['profile', 'email'],
+      behavior: "web"
     });
 
     if (result.type === 'success') {
