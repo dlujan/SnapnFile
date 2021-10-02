@@ -3,7 +3,7 @@
     "name": "SnapnFile",
     "scheme": "snapnfileredirect",
     "slug": "SnapnFile",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -20,7 +20,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.daniellujan.snapnfile",
-      "buildNumber": "1.0.3"
+      "buildNumber": "1.0.4"
     },
     "web": {
       "favicon": "./assets/favicon.png"
