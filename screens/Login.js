@@ -79,6 +79,7 @@ const signInWithGoogleAsync = async () => {
     }
   } catch (e) {
     console.log(e);
+    alert(e);
     return { error: true };
   }
 }
