@@ -32,7 +32,7 @@ export default function Account() {
       // For usage in managed apps using the proxy
       redirectUri: makeRedirectUri({
         // For usage in bare and standalone
-        native: 'snapnfileredirect://redirect',
+        // scheme: 'snapnfileredirect://redirect',
         useProxy,
       }),
     },
