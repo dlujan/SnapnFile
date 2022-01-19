@@ -37,7 +37,15 @@ export default class AlbumSingle extends React.Component {
         viewImageSlider: true,
         sliderIndex: index
       })
+      // these two aren't the same
+      console.log(index)
+      console.log(this.state.sliderIndex)
     }
+
+    onPageSelected = (index) => {
+      // BUG - Image 10 is the last you can expand
+      this.setState({sliderIndex: index})
+    };
 
     formatData = (data, numColumns) => {
       const numberOfFullRows = Math.floor(data.length / numColumns);
@@ -49,6 +57,11 @@ export default class AlbumSingle extends React.Component {
       }
     
       return data;
+    };
+
+    renderItem = ({item, index}) => {
+      if (item.empty) return <View style={[styles.thumbnail, styles.thumbnailInvisible]} />;
+      return <TouchableOpacity onPress={() => this.openImageSlider(index)} style={styles.thumbnail}><Image style={styles.thumbnailImage} source={{uri: item.source.url}}/></TouchableOpacity>
     };
 
     render() {
@@ -119,7 +132,7 @@ export default class AlbumSingle extends React.Component {
                           style={{ flex: 1, backgroundColor: 'black' }}
                           images={filteredPhotos}
                           initialPage={this.state.sliderIndex}
-                          onPageSelected={(index) => this.setState({sliderIndex: index})}
+                          onPageSelected={(index) => this.onPageSelected(index)}
                         />
                         <View style={{ top: 0, height: 65, backgroundColor: 'rgba(0, 0, 0, 0.7)', width: '50%', position: 'absolute', justifyContent: 'center' }}>
                           <TouchableOpacity onPress={() => this.setState({viewImageSlider: false})}><Text style={{ textAlign: 'left', color: 'white', fontSize: 15, paddingLeft: '5%' }}><FontAwesome name="close" style={{fontSize: 20}}/></Text></TouchableOpacity>
@@ -148,10 +161,7 @@ export default class AlbumSingle extends React.Component {
                           data={this.formatData(filteredPhotos, 3)}
                           numColumns={3}
                           keyExtractor={(item, index) => `thumbnail${index}`}
-                          renderItem={({item, index}) => {
-                            if (item.empty) return <View style={[styles.thumbnail, styles.thumbnailInvisible]} />;
-                            return <TouchableOpacity onPress={() => this.openImageSlider(index)} style={styles.thumbnail}><Image style={styles.thumbnailImage} source={{uri: item.source.url}}/></TouchableOpacity>
-                          }}
+                          renderItem={this.renderItem}
                         />
 
                       </View>

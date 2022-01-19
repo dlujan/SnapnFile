@@ -5,6 +5,7 @@ import * as Permissions from 'expo-permissions';
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import Slider from '@react-native-community/slider';
 import {
   Menu,
@@ -137,7 +138,8 @@ class SnapCamera extends React.Component {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     if (this.camera) {
-      let photo = await this.camera.takePictureAsync();
+      let rawImage = await this.camera.takePictureAsync();
+      const photo = await manipulateAsync(rawImage.uri, [], { compress: 0 });
 
       // ***** Show the new image in the top right thumbnail
       this.setState({ testUri: photo.uri })
@@ -180,10 +182,12 @@ class SnapCamera extends React.Component {
 
   pickImage = async () => {
     if (this.camera) {
-      let photo = await ImagePicker.launchImageLibraryAsync({
+      let rawImage = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images
       });
-      if (photo.cancelled) return;
+      if (rawImage.cancelled) return;
+
+      const photo = await manipulateAsync(rawImage.uri, [], { compress: 0 });
 
       this.setState({ testUri: photo.uri })
 
